@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "263226874321",
+    "project_id": "fir-marco-5b28c",
+    "storage_bucket": "fir-marco-5b28c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:263226874321:android:24f4cd7bc0dca4fe8928f0",
+        "android_client_info": {
+          "package_name": "pt.isec.marco.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIRMcBOu0a3C8PCfzfe15smabKoM1YoN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
