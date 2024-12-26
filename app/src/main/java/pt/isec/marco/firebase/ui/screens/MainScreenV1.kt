@@ -15,12 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 
 @Composable
 fun QuizecScreen(
     modifier: Modifier = Modifier,
     viewModel: FirebaseViewModel,
+    navController: NavHostController = rememberNavController()
 ){
     val error by remember { viewModel.error }
     Column(
@@ -38,7 +41,13 @@ fun QuizecScreen(
         Text("IMAGEM DO QUIZEC")
         Spacer(Modifier.height(16.dp))
         Button(
-            onClick = {  }) {
+            onClick = {
+                navController.navigate("firestore") {
+                    popUpTo("firestore") {
+                        inclusive = true
+                    }
+                }
+            }) {
             Text("Criador")
         }
         Button(

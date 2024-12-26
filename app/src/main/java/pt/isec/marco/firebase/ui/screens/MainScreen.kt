@@ -128,7 +128,8 @@ fun MainScreen(
                         .background(Color(64,160,255))
                 ){
                     QuizecScreen(
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        navController = navController
                     )
                 }
             }
