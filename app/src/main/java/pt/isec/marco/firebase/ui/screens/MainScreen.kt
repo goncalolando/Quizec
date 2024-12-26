@@ -107,7 +107,7 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "firestore",
+            startDestination = "quizec",
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = "firestore") {
@@ -117,6 +117,17 @@ fun MainScreen(
                         .background(Color(64,160,255))
                 ){
                     FirestoreScreen(
+                        viewModel = viewModel
+                    )
+                }
+            }
+            composable(route = "quizec"){
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(64,160,255))
+                ){
+                    QuizecScreen(
                         viewModel = viewModel
                     )
                 }
