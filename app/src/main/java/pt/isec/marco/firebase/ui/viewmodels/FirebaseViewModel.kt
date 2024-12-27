@@ -11,6 +11,8 @@ import pt.isec.marco.firebase.utils.FAuthUtil
 import pt.isec.marco.firebase.utils.FStorageUtil
 
 data class User(val name: String, val email: String,val picture: String?)
+data class Pergunta(val id: String, val titulo: String, val imagem: String, val respostas: List<String>, val respostaCerta: List<String>)
+data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
 
 fun FirebaseUser.toUser(): User {
     val displayName = this.displayName?: ""
@@ -108,5 +110,8 @@ open class FirebaseViewModel : ViewModel() {
             FStorageUtil.stopObserver()
         }
     }
+
+    private val _questionarios_criados = mutableStateOf(listOf<Questionario>())
+
 
 }

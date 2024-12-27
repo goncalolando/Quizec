@@ -1,13 +1,10 @@
 package pt.isec.marco.firebase.ui.screens
 
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
@@ -24,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -110,17 +106,6 @@ fun MainScreen(
             startDestination = "quizec",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(route = "firestore") {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color(64,160,255))
-                ){
-                    FirestoreScreen(
-                        viewModel = viewModel
-                    )
-                }
-            }
             composable(route = "quizec"){
                 Box(
                     modifier = Modifier
@@ -133,29 +118,44 @@ fun MainScreen(
                     )
                 }
             }
-            composable(route = "intent") {
-                val intent = (context as? Activity)?.intent
-                Column(
+            composable(route = "menu-criador") {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(64,224,128))
-                        .padding(16.dp)
-                ) {
-                    intent?.let {
-                        LazyColumn {
-                            it.extras?.apply {
-                                for (k in keySet()) {
-                                    item {
-                                        Text(
-                                            text = "$k : ${get(k)}"
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                        .background(Color(64,160,255))
+                ){
+                    CriadorMenuScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(route = "criar-questionario") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(64,0,255))
+                ){
+                    CriarQuestionarioScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+
+                }
+            }
+            composable(route = "criar-pergunta") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0,160,255))
+                ){
+                    CriarPerguntaScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
                 }
             }
         }
     }
 }
+
