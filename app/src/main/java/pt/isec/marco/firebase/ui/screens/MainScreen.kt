@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
@@ -18,6 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +43,7 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     val currentScreen by navController.currentBackStackEntryAsState()
+    var tipoPerguntaSelecionada by remember { mutableStateOf(-1) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -48,16 +53,39 @@ fun MainScreen(
                     Text(text = "Firebase App")
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            onSignOut()
+                    when(currentScreen?.destination?.route){
+                        "tipo-pergunta" ->{
+                            IconButton(
+                                onClick = {
+                                    if (tipoPerguntaSelecionada != -1) {
+                                        navController.navigate("criar-pergunta") {
+                                            popUpTo("criar-pergunta") {
+                                                inclusive = true
+                                            }
+                                        }
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Filled.Done,
+                                    contentDescription = "Save question"
+                                )
+                            }
                         }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Sign out"
-                        )
+                        else -> {
+                            IconButton(
+                                onClick = {
+                                    onSignOut()
+                               }
+                           ) {
+                               Icon(
+                                   imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                   contentDescription = "Sign out"
+                               )
+                           }
+                       }
                     }
+
                 }
             )
         },
@@ -143,6 +171,21 @@ fun MainScreen(
 
                 }
             }
+            composable(route = "tipo-pergunta") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    TipoPerguntaScreen(
+                        viewModel = viewModel,
+                        navController = navController,
+                        onPerguntaSelected = { index ->
+                            tipoPerguntaSelecionada = index
+                        }
+                    )
+                }
+            }
             composable(route = "criar-pergunta") {
                 Box(
                     modifier = Modifier
@@ -151,7 +194,8 @@ fun MainScreen(
                 ){
                     CriarPerguntaScreen(
                         viewModel = viewModel,
-                        navController = navController
+                        navController = navController,
+                        tipoPerguntaSelecionada = tipoPerguntaSelecionada
                     )
                 }
             }

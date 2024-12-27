@@ -44,8 +44,8 @@ fun CriarQuestionarioScreen(
             Text("Questionario")
             Button(
                 onClick = {
-                    navController.navigate("criar-pergunta") {
-                        popUpTo("criar-pergunta") { inclusive = true }
+                    navController.navigate("tipo-pergunta") {
+                        popUpTo("tipo-pergunta") { inclusive = true }
                     }
                 }
             ) {
