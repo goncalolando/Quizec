@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -95,7 +94,13 @@ fun QuizecScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { },
+                onClick = {
+                    navController.navigate("menu-utilizador") {
+                        popUpTo("menu-criador") {
+                            inclusive = true
+                        }
+                    }
+                },
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .size(150.dp)

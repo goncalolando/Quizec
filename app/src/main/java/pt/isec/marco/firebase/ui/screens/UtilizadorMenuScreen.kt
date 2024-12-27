@@ -17,7 +17,7 @@ import androidx.navigation.NavHostController
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 
 @Composable
-fun CriadorMenuScreen(
+fun UtilizadorMenuScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController
 ) {
@@ -34,12 +34,13 @@ fun CriadorMenuScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Menu Criador")
+
+        Text("Menu Utilizador")
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                navController.navigate("menu-criador") {
+                navController.navigate("menu-utilizador") {
                     popUpTo("historico-questionarios") {
                         inclusive = true
                     }
@@ -50,13 +51,13 @@ fun CriadorMenuScreen(
         }
         Button(
             onClick = {
-                navController.navigate("criar-questionario") {
-                popUpTo("criar-questionario") {
+                navController.navigate("responder-questionario") {
+                popUpTo("responder-questionario") {
                     inclusive = true
                 }
             }}
         ) {
-            Text("Criar questionario")
+            Text("Responder questionario")
         }
     }
 }

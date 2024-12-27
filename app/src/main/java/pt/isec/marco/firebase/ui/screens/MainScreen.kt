@@ -1,13 +1,10 @@
 package pt.isec.marco.firebase.ui.screens
 
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
@@ -24,7 +21,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -114,7 +110,7 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(64,160,255))
+                        .background(Color(108, 147, 201, 255))
                 ){
                     QuizecScreen(
                         viewModel = viewModel,
@@ -126,7 +122,7 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(64,160,255))
+                        .background(Color(108, 147, 201, 255))
                 ){
                     CriadorMenuScreen(
                         viewModel = viewModel,
@@ -138,7 +134,7 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(64,0,255))
+                        .background(Color(108, 147, 201, 255))
                 ){
                     CriarQuestionarioScreen(
                         viewModel = viewModel,
@@ -151,9 +147,57 @@ fun MainScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color(0,160,255))
+                        .background(Color(108, 147, 201, 255))
                 ){
                     CriarPerguntaScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(route = "menu-utilizador") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    UtilizadorMenuScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(route = "responder-questionario") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    ResponderQuestionarioScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(route = "seleciona-perguntas") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    SelecionarPerguntasScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(route = "ver-questionario") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    VerQuestionarioScreen(
                         viewModel = viewModel,
                         navController = navController
                     )
