@@ -21,7 +21,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -48,13 +53,67 @@ fun TipoPerguntaCard(
             containerColor = Color(255,224,192)
         )
     ) {
-        Text(pergunta.titulo)
-        pergunta.respostas.forEach {
-            Text(it)
+        when(pergunta.tipo){
+            "P01" -> PerguntaVF(pergunta)
+            "P02" -> PerguntaEM(pergunta)
+            else -> {
+                Text("Tipo de pergunta desconhecido")
+            }
         }
-        Text(pergunta.respostaCerta.toString())
     }
 }
+
+@Composable
+fun PerguntaVF(
+    pergunta: Pergunta,
+    modifier: Modifier = Modifier
+){
+    Text("Pergunta: ${pergunta.titulo}")
+    var i = 0
+    while(pergunta.respostas.size > i) {
+        Row() {
+            var checked by remember { mutableStateOf(true) }
+            Checkbox(
+                checked = checked,
+                onCheckedChange = { checked = !it }
+            )
+            Checkbox(
+                checked = !checked,
+                onCheckedChange = { checked = it }
+            )
+            Text(
+                text = pergunta.respostas[i],
+                fontSize = 16.sp,
+            )
+        }
+        i++
+    }
+}
+
+@Composable
+fun PerguntaEM(
+    pergunta: Pergunta,
+    modifier: Modifier = Modifier
+){
+    Text("Pergunta: ${pergunta.titulo}")
+    var i = 0
+    while(pergunta.respostas.size > i) {
+        var checked by remember { mutableStateOf(true) }
+        Row() {
+            Text(
+                text = pergunta.respostas[i],
+                fontSize = 16.sp
+            )
+            Checkbox(
+                checked = checked,
+                onCheckedChange = { checked = !it }
+            )
+        }
+        i++
+    }
+
+}
+
 
 
 @Composable
@@ -65,15 +124,15 @@ fun CriarPerguntaScreen(
     val tiposPerguntas = listOf(
         Pergunta(
             "identificador", "TItulo",
-            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3")
+            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3"),"P01"
         ),
         Pergunta(
             "identificador", "TItulo",
-            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3")
+            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3"),"P02"
         ),
         Pergunta(
             "identificador", "TItulo",
-            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3")
+            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3"),"BF"
         )
     )
     Box(modifier = Modifier.fillMaxSize()) {
@@ -85,28 +144,26 @@ fun CriarPerguntaScreen(
             modifier = Modifier.fillMaxSize()
         ) { page ->
             val pergunta = tiposPerguntas[page]
-            TipoPerguntaCard(
-                pergunta = pergunta
-            )
-            Row(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                repeat(pagerState.pageCount) { iteration ->
-                    val color =
-                        if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
-                    Box(
-                        modifier = Modifier
-                            .padding(2.dp)
-                            .clip(CircleShape)
-                            .background(color)
-                            .size(16.dp)
-                    )
-                }
+            TipoPerguntaCard(pergunta)
+        }
+        Row(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(pagerState.pageCount) { iteration ->
+                val color =
+                    if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                        .size(16.dp)
+                )
             }
         }
     }
