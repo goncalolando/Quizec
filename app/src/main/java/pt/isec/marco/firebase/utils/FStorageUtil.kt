@@ -2,7 +2,6 @@ package pt.isec.marco.firebase.utils
 
 import android.content.res.AssetManager
 import android.util.Log
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Source
@@ -11,12 +10,14 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
+import pt.isec.marco.firebase.ui.viewmodels.Questionario
 import java.io.IOException
 import java.io.InputStream
 
 
 class FStorageUtil {
     companion object {
+
         fun addDataToFirestore(onResult: (Throwable?) -> Unit) {
             val db = Firebase.firestore
 
@@ -82,7 +83,6 @@ class FStorageUtil {
                     }
             }
         }
-
         fun getPerguntaById(id: String, onResult: (Pergunta?, Throwable?) -> Unit) {
             val db = Firebase.firestore
 
@@ -100,6 +100,33 @@ class FStorageUtil {
                 .addOnFailureListener { exception ->
                     onResult(null, exception)
                 }
+        }
+//data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
+        fun addQuestionarioToFirestore(onResult: (Throwable?) -> Unit, questionario: Questionario, viewModel: FirebaseViewModel) {
+            val db = Firebase.firestore
+
+            geraUnico { uniqueId ->
+                questionario.id = uniqueId
+
+                val questionarioHash = hashMapOf(
+                    "id" to questionario.id,
+                    "descricao" to questionario.descricao,
+                    "perguntas" to questionario.perguntas,
+
+                )
+
+                db.collection("Questionarios")
+                    .document("questionario_${questionario.id}")
+                    .set(questionarioHash)
+                    .addOnCompleteListener { result ->
+                        if (result.isSuccessful) {
+                            onResult(null)
+                            viewModel.questionarios.value += questionario.id
+                        } else {
+                            onResult(result.exception)
+                        }
+                    }
+            }
         }
 
         fun updateDataInFirestore(onResult: (Throwable?) -> Unit) {

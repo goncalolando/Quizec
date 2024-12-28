@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
@@ -26,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -239,6 +239,32 @@ fun MainScreen(
                         .background(Color(108, 147, 201, 255))
                 ){
                     VerQuestionarioScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+            composable(route = "firestore") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    FirestoreScreen(
+                        viewModel = viewModel,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    )
+                }
+            }
+            composable(route = "historico-questionarios") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    HistoricoQuestionarioScreen(
                         viewModel = viewModel,
                         navController = navController
                     )
