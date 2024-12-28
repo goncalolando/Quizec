@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
@@ -56,15 +58,20 @@ fun MainScreen(
                 },
                 actions = {
                     when(currentScreen?.destination?.route){
-                        "criar-questionario" ->{
+                        "ver-questionario" ->{
                             IconButton(
                                 onClick = {
                                     showComplete = !showComplete
                                 }
                             ) {
                                 Icon(
-                                    Icons.Filled.ArrowDropDown,
-                                    contentDescription = "Save question"
+                                    if(showComplete){
+                                        Icons.Filled.KeyboardArrowDown
+                                    }else{
+                                        Icons.Filled.KeyboardArrowUp
+
+                                    },
+                                    contentDescription = "Show complete"
                                 )
                             }
                         }
@@ -162,8 +169,7 @@ fun MainScreen(
                 ){
                     CriarQuestionarioScreen(
                         viewModel = viewModel,
-                        navController = navController,
-                        showComplete = showComplete
+                        navController = navController
                     )
 
                 }
@@ -240,7 +246,8 @@ fun MainScreen(
                 ){
                     VerQuestionarioScreen(
                         viewModel = viewModel,
-                        navController = navController
+                        navController = navController,
+                        showComplete = showComplete
                     )
                 }
             }

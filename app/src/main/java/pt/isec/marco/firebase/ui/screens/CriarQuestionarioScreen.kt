@@ -25,23 +25,10 @@ import pt.isec.marco.firebase.utils.FStorageUtil
 @Composable
 fun CriarQuestionarioScreen(
     viewModel: FirebaseViewModel,
-    navController: NavHostController,
-    showComplete: Boolean = false
+    navController: NavHostController
+
 ) {
-    val perguntasIds = viewModel.perguntas.value
-    var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
 
-    LaunchedEffect(perguntasIds) {
-        perguntas = mutableListOf()
-
-        perguntasIds.forEach { perguntaId ->
-            FStorageUtil.getPerguntaById(perguntaId) { pergunta, _ ->
-                if (pergunta != null) {
-                    perguntas = perguntas + pergunta
-                }
-            }
-        }
-    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,10 +39,6 @@ fun CriarQuestionarioScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("User: ${viewModel.user.value?.email ?: ""}")
-            repeat(viewModel.perguntas.value.size) { iteration ->
-                val pergunta = viewModel.perguntas.value[iteration]
-
-            }
         }
         Column(
             modifier = Modifier
@@ -65,11 +48,6 @@ fun CriarQuestionarioScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text("Questionario")
-            if (perguntas.isNotEmpty()) {
-                perguntas.forEach { pergunta ->
-                    TipoPerguntaCard(pergunta,showComplete = showComplete)
-                }
-            }
             Button(
                 onClick = {
                     navController.navigate("tipo-pergunta") {
