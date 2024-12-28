@@ -1,7 +1,9 @@
 package pt.isec.marco.firebase.ui.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,7 +20,8 @@ import pt.isec.marco.firebase.utils.FStorageUtil
 fun VerQuestionarioScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController,
-    showComplete: Boolean = false
+    showComplete: Boolean = false,
+    showAnswer: Boolean? = null
 ) {
     val perguntasIds = viewModel.perguntas.value
     var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
@@ -35,12 +38,19 @@ fun VerQuestionarioScreen(
         }
     }
 
-    Box(Modifier.fillMaxSize()){
+    Column(Modifier.fillMaxSize()){
         if (perguntas.isNotEmpty()) {
             perguntas.forEach { pergunta ->
-                TipoPerguntaCard(pergunta,showComplete = showComplete)
+                var answer by remember { mutableStateOf<Boolean?>(null) }
+                if( pergunta.respostaCerta.get(0) == "true"){
+                    answer = true
+                }else if(pergunta.respostaCerta.get(0) == "false"){
+                    answer = false
+                }else{
+                    answer = null
+                }
+                TipoPerguntaCard(pergunta,showComplete = showComplete, showAnswer = answer)
             }
         }
-
     }
 }

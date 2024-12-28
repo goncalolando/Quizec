@@ -26,6 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +44,8 @@ import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 @Composable
 fun TipoPerguntaCard(
     pergunta: Pergunta,
-    showComplete: Boolean
+    showComplete: Boolean,
+    showAnswer: Boolean?
 ) {
     Card(
         modifier = Modifier
@@ -55,7 +57,7 @@ fun TipoPerguntaCard(
         )
     ) {
         when(pergunta.tipo){
-            "P01" -> PerguntaVF(pergunta, showComplete)
+            "P01" -> PerguntaVF(pergunta, showComplete,showAnswer)
             "P02" -> PerguntaEM(pergunta)
             else -> {
                 Text("Tipo de pergunta desconhecido")
@@ -68,6 +70,7 @@ fun TipoPerguntaCard(
 fun PerguntaVF(
     pergunta: Pergunta,
     showComplete: Boolean,
+    showAnswer: Boolean?
 ){
     Text(stringResource(R.string.P01_name))
     Text("Pergunta: ${pergunta.titulo}")
@@ -80,6 +83,16 @@ fun PerguntaVF(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     var isChecked  by remember { mutableStateOf<Boolean?>(null) }
+
+                    val isAnswerCorrect = showAnswer == true
+                    val isAnswerIncorrect = showAnswer == false
+
+                    val checkboxColor = when {
+                        isAnswerCorrect -> Color.Green
+                        isAnswerIncorrect -> Color.Red
+                        else -> Color.Gray
+                    }
+
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -89,8 +102,13 @@ fun PerguntaVF(
                     ){
                         Text("Verdadeiro")
                         Checkbox(
-                            checked = isChecked  == true,
-                            onCheckedChange = { isChecked  =  if (it) true else null}
+                            checked = isChecked == true || isAnswerCorrect,
+                            onCheckedChange = { isChecked = if (it) true else null },
+                            enabled = showAnswer == null,
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = checkboxColor,
+                                uncheckedColor = checkboxColor.copy(alpha = 0.6f)
+                            )
                         )
                     }
                     Column(
@@ -102,8 +120,13 @@ fun PerguntaVF(
                     ){
                         Text("Falso")
                         Checkbox(
-                            checked = isChecked  == false,
-                            onCheckedChange = { isChecked  =  if (it) false else null }
+                            checked = isChecked == false || isAnswerIncorrect,
+                            onCheckedChange = { isChecked = if (it) false else null },
+                            enabled = showAnswer == null,
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = checkboxColor,
+                                uncheckedColor = checkboxColor.copy(alpha = 0.6f)
+                            )
                         )
                     }
                 }
@@ -205,7 +228,7 @@ fun TipoPerguntaScreen(
                     .padding(2.dp)
             ) {
                 TipoPerguntaCard(
-                    pergunta, true
+                    pergunta, true,null
                 )
             }
         }

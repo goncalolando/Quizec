@@ -26,7 +26,6 @@ import pt.isec.marco.firebase.utils.FStorageUtil
 fun CriarQuestionarioScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController
-
 ) {
 
     Box(

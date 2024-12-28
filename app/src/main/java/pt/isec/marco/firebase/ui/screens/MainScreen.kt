@@ -10,8 +10,10 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,6 +50,7 @@ fun MainScreen(
     val currentScreen by navController.currentBackStackEntryAsState()
     var tipoPerguntaSelecionada by remember { mutableStateOf(-1) }
     var showComplete by remember { mutableStateOf(false) }
+    var showAnswer by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -66,12 +69,27 @@ fun MainScreen(
                             ) {
                                 Icon(
                                     if(showComplete){
-                                        Icons.Filled.KeyboardArrowDown
-                                    }else{
                                         Icons.Filled.KeyboardArrowUp
+                                    }else{
+                                        Icons.Filled.KeyboardArrowDown
 
                                     },
                                     contentDescription = "Show complete"
+                                )
+                            }
+                            IconButton(
+                                onClick = {
+                                    showAnswer = !showAnswer
+                                }
+                            ) {
+                                Icon(
+                                    if(showAnswer){
+                                        Icons.Filled.Lock
+                                    }else{
+                                        Icons.Filled.Warning
+
+                                    },
+                                    contentDescription = "Show answer"
                                 )
                             }
                         }
