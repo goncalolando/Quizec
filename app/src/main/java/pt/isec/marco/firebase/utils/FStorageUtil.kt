@@ -2,12 +2,15 @@ package pt.isec.marco.firebase.utils
 
 import android.content.res.AssetManager
 import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
+import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import java.io.IOException
 import java.io.InputStream
 
@@ -25,6 +28,59 @@ class FStorageUtil {
                 .addOnCompleteListener { result ->
                     onResult(result.exception)
                 }
+        }
+
+        fun geraId(length: Int = 6): String {
+            val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+            return (1..length)
+                .map { chars.random() }
+                .joinToString("")
+        }
+
+        fun geraUnico(onComplete: (String) -> Unit) {
+            val db = Firebase.firestore
+            val newId = geraId()
+
+            db.collection("Perguntas").document(newId).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        geraId()
+                    } else {
+                        onComplete(newId)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    println("Error checking document: $e")
+                }
+        }
+
+        fun addPerguntaToFirestore(onResult: (Throwable?) -> Unit, pergunta: Pergunta, viewModel: FirebaseViewModel) {
+            val db = Firebase.firestore
+
+            geraUnico { uniqueId ->
+                pergunta.id = uniqueId
+
+                val perguntaHash = hashMapOf(
+                    "id" to pergunta.id,
+                    "titulo" to pergunta.titulo,
+                    "imagem" to pergunta.imagem,
+                    "respostas" to pergunta.respostas,
+                    "respostaCerta" to pergunta.respostaCerta,
+                    "tipo" to pergunta.tipo
+                )
+
+                db.collection("Perguntas")
+                    .document("pergunta_${pergunta.id}")
+                    .set(perguntaHash)
+                    .addOnCompleteListener { result ->
+                        if (result.isSuccessful) {
+                            onResult(null)
+                            viewModel.perguntas.value += pergunta.id
+                        } else {
+                            onResult(result.exception)
+                        }
+                    }
+            }
         }
 
         fun updateDataInFirestore(onResult: (Throwable?) -> Unit) {

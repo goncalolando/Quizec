@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -21,70 +22,141 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
+import pt.isec.marco.firebase.ui.viewmodels.Pergunta
+
 
 @Composable
 fun CriarPerguntaScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController,
     tipoPerguntaSelecionada: Int
-){
+) {
     var nome by remember { mutableStateOf("") }
+    var isChecked by remember { mutableStateOf<Boolean?>(null) }
+    var isNomeInvalid by remember { mutableStateOf(false) }
+    var isCheckedInvalid by remember { mutableStateOf(false) }
+    val errorMessage by viewModel.error
+
+
+    // Função de validação que atualiza os estados de erro
+    fun validarEntradas(): Boolean {
+        var isValid = true
+        if (nome.isEmpty()) {
+            isNomeInvalid = true
+            isValid = false
+        } else {
+            isNomeInvalid = false
+        }
+
+        if (isChecked == null) {
+            isCheckedInvalid = true
+            isValid = false
+        } else {
+            isCheckedInvalid = false
+        }
+
+        return isValid
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         OutlinedTextField(
             value = nome,
-            isError = nome.isEmpty(),
-            label = {
-                Text("Pergunta:")
-            },
+            isError = isNomeInvalid,
+            label = { Text("Pergunta:") },
             onValueChange = { newText ->
                 nome = newText
+                isNomeInvalid = false
             },
             modifier = Modifier
                 .fillMaxWidth()
         )
-        when(tipoPerguntaSelecionada){
+        if (isNomeInvalid) {
+            Text(
+                text = "Este campo é obrigatório.",
+                color = androidx.compose.ui.graphics.Color.Red,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        when (tipoPerguntaSelecionada) {
             0 -> {
-                Text("Soluçao: ")
-                Column{
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                Text("Solução:")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        var isChecked  by remember { mutableStateOf<Boolean?>(null) }
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ){
-                            Text("Verdadeiro")
-                            Checkbox(
-                                checked = isChecked  == true,
-                                onCheckedChange = { isChecked  =  if (it) true else null}
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ){
-                            Text("Falso")
-                            Checkbox(
-                                checked = isChecked  == false,
-                                onCheckedChange = { isChecked  =  if (it) false else null }
-                            )
-                        }
+                        Text("Verdadeiro")
+                        Checkbox(
+                            checked = isChecked == true,
+                            onCheckedChange = {
+                                isChecked = if (it) true else null
+                                isCheckedInvalid = false
+                            }
+                        )
                     }
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Falso")
+                        Checkbox(
+                            checked = isChecked == false,
+                            onCheckedChange = {
+                                isChecked = if (it) false else null
+                                isCheckedInvalid = false
+                            }
+                        )
+                    }
+                }
+                if (isCheckedInvalid) {
+                    Text(
+                        text = "Por favor, selecione uma opção.",
+                        color = androidx.compose.ui.graphics.Color.Red,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
+
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage ?: "",
+                color = androidx.compose.ui.graphics.Color.Red,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
         Button(
             onClick = {
-        },modifier = Modifier.align(Alignment.CenterHorizontally)
-        ){
+                if (validarEntradas()) {
+                    viewModel.addPerguntaToFirestore(
+                        Pergunta(
+                            id = "1",
+                            titulo = nome,
+                            imagem = "123",
+                            respostas = listOf(),
+                            respostaCerta = listOf(isChecked.toString()),
+                            tipo = tipoPerguntaSelecionada.toString()
+                        )
+                    )
+                    if(errorMessage == null) {
+                        navController.navigate("criar-questionario") {
+                            popUpTo("criar-questionario") { inclusive = true }
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
             Text("Guardar")
         }
     }

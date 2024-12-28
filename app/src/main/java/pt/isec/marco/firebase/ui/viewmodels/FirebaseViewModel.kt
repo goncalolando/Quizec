@@ -10,8 +10,19 @@ import kotlinx.coroutines.launch
 import pt.isec.marco.firebase.utils.FAuthUtil
 import pt.isec.marco.firebase.utils.FStorageUtil
 
-data class User(val name: String, val email: String,val picture: String?)
-data class Pergunta(val id: String, val titulo: String, val imagem: String, val respostas: List<String>, val respostaCerta: List<String>,val tipo: String)
+data class User(
+    val name: String,
+    val email: String,
+    val picture: String?
+)
+data class Pergunta(
+    var id: String,
+    val titulo: String,
+    val imagem: String,
+    val respostas: List<String>,
+    val respostaCerta: List<String>,
+    val tipo: String
+)
 data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
 
 fun FirebaseUser.toUser(): User {
@@ -23,6 +34,7 @@ fun FirebaseUser.toUser(): User {
 
 open class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
+    val perguntas = mutableStateOf(listOf<String>())
     open val user : State<User?>
         get() = _user
 
@@ -76,6 +88,14 @@ open class FirebaseViewModel : ViewModel() {
             FStorageUtil.addDataToFirestore { exception ->
                 _error.value = exception?.message
             }
+        }
+    }
+
+    fun addPerguntaToFirestore(pergunta: Pergunta) {
+        viewModelScope.launch {
+            FStorageUtil.addPerguntaToFirestore({ exception ->
+                _error.value = exception?.message
+            }, pergunta, this@FirebaseViewModel)
         }
     }
 
