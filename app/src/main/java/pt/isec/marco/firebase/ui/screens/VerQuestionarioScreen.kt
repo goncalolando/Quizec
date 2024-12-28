@@ -38,19 +38,33 @@ fun VerQuestionarioScreen(
         }
     }
 
-    Column(Modifier.fillMaxSize()){
+    Column(Modifier.fillMaxSize()) {
         if (perguntas.isNotEmpty()) {
             perguntas.forEach { pergunta ->
-                var answer by remember { mutableStateOf<Boolean?>(null) }
-                if( pergunta.respostaCerta.get(0) == "true"){
-                    answer = true
-                }else if(pergunta.respostaCerta.get(0) == "false"){
-                    answer = false
-                }else{
-                    answer = null
+                var answer by remember { mutableStateOf<ShowAnswer?>(null) }
+
+                answer = when (pergunta.tipo) {
+                    "P01" -> {
+                        when (pergunta.respostaCerta.getOrNull(0)) {
+                            "true" -> ShowAnswer.BooleanAnswer(true)
+                            "false" -> ShowAnswer.BooleanAnswer(false)
+                            else -> ShowAnswer.NotAnswered
+                        }
+                    }
+                    "P02" -> {
+                        val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
+                        ShowAnswer.IntAnswer(respostaIndex)
+                    }
+                    else -> ShowAnswer.NotAnswered
                 }
-                TipoPerguntaCard(pergunta,showComplete = showComplete, showAnswer = answer)
+
+                TipoPerguntaCard(
+                    pergunta = pergunta,
+                    showComplete = showComplete,
+                    showAnswer = answer
+                )
             }
         }
     }
+
 }
