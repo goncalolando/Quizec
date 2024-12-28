@@ -1,7 +1,6 @@
 package pt.isec.marco.firebase.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,11 +43,10 @@ import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 @Composable
 fun TipoPerguntaCard(
     pergunta: Pergunta,
-//    onSelectContact: (Pergunta) -> Unit,
-    modifier: Modifier = Modifier
+    showComplete: Boolean
 ) {
     Card(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -57,7 +55,7 @@ fun TipoPerguntaCard(
         )
     ) {
         when(pergunta.tipo){
-            "P01" -> PerguntaVF(pergunta)
+            "P01" -> PerguntaVF(pergunta, showComplete)
             "P02" -> PerguntaEM(pergunta)
             else -> {
                 Text("Tipo de pergunta desconhecido")
@@ -69,47 +67,49 @@ fun TipoPerguntaCard(
 @Composable
 fun PerguntaVF(
     pergunta: Pergunta,
-    modifier: Modifier = Modifier
+    showComplete: Boolean,
 ){
     Text(stringResource(R.string.P01_name))
     Text("Pergunta: ${pergunta.titulo}")
-    Spacer(modifier = Modifier.height(16.dp))
-    var i = 0
-    while(pergunta.respostas.size > i) {
-        Column{
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                var isChecked  by remember { mutableStateOf<Boolean?>(null) }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ){
-                    Text("Verdadeiro")
-                    Checkbox(
-                        checked = isChecked  == true,
-                        onCheckedChange = { isChecked  =  if (it) true else null}
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ){
-                    Text("Falso")
-                    Checkbox(
-                        checked = isChecked  == false,
-                        onCheckedChange = { isChecked  =  if (it) false else null }
-                    )
+    if(showComplete){
+        Spacer(modifier = Modifier.height(16.dp))
+        var i = 0
+        while(pergunta.respostas.size > i) {
+            Column{
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    var isChecked  by remember { mutableStateOf<Boolean?>(null) }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
+                        Text("Verdadeiro")
+                        Checkbox(
+                            checked = isChecked  == true,
+                            onCheckedChange = { isChecked  =  if (it) true else null}
+                        )
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
+                        Text("Falso")
+                        Checkbox(
+                            checked = isChecked  == false,
+                            onCheckedChange = { isChecked  =  if (it) false else null }
+                        )
+                    }
                 }
             }
+            i++
         }
-        i++
     }
 }
 
@@ -204,7 +204,9 @@ fun TipoPerguntaScreen(
                     .clip(RoundedCornerShape(16.dp))
                     .padding(2.dp)
             ) {
-                TipoPerguntaCard(pergunta)
+                TipoPerguntaCard(
+                    pergunta, true
+                )
             }
         }
         Button(

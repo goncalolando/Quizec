@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.launch
 import pt.isec.marco.firebase.utils.FAuthUtil
 import pt.isec.marco.firebase.utils.FStorageUtil
@@ -22,7 +23,20 @@ data class Pergunta(
     val respostas: List<String>,
     val respostaCerta: List<String>,
     val tipo: String
-)
+){
+    companion object {
+        fun fromFirestore(document: DocumentSnapshot): Pergunta {
+            return Pergunta(
+                id = document.id,
+                titulo = document.getString("titulo") ?: "",
+                imagem = document.getString("imagem") ?: "",
+                respostas = document.get("respostas") as? List<String> ?: listOf(),
+                respostaCerta = document.get("respostaCerta") as? List<String> ?: listOf(),
+                tipo = document.getString("tipo") ?: ""
+            )
+        }
+    }
+}
 data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
 
 fun FirebaseUser.toUser(): User {

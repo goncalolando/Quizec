@@ -83,6 +83,25 @@ class FStorageUtil {
             }
         }
 
+        fun getPerguntaById(id: String, onResult: (Pergunta?, Throwable?) -> Unit) {
+            val db = Firebase.firestore
+
+            val docRef = db.collection("Perguntas").document("pergunta_$id")
+
+            docRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val pergunta = Pergunta.fromFirestore(document)
+                        onResult(pergunta, null) // Return the Pergunta
+                    } else {
+                        onResult(null, Throwable("Pergunta not found"))
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    onResult(null, exception)
+                }
+        }
+
         fun updateDataInFirestore(onResult: (Throwable?) -> Unit) {
             val db = Firebase.firestore
             val v = db.collection("Scores").document("Level1")

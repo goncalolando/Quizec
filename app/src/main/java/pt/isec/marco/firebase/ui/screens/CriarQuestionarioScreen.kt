@@ -1,34 +1,47 @@
 package pt.isec.marco.firebase.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
+import pt.isec.marco.firebase.utils.FStorageUtil
 
 @Composable
 fun CriarQuestionarioScreen(
     viewModel: FirebaseViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    showComplete: Boolean = false
 ) {
+    val perguntasIds = viewModel.perguntas.value
+    var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
+
+    LaunchedEffect(perguntasIds) {
+        perguntas = mutableListOf()
+
+        perguntasIds.forEach { perguntaId ->
+            FStorageUtil.getPerguntaById(perguntaId) { pergunta, _ ->
+                if (pergunta != null) {
+                    perguntas = perguntas + pergunta
+                }
+            }
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -39,10 +52,6 @@ fun CriarQuestionarioScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("User: ${viewModel.user.value?.email ?: ""}")
-            repeat(viewModel.perguntas.value.size) { iteration ->
-                val pergunta = viewModel.perguntas.value[iteration]
-
-            }
         }
         Column(
             modifier = Modifier
@@ -52,6 +61,11 @@ fun CriarQuestionarioScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text("Questionario")
+            if (perguntas.isNotEmpty()) {
+                perguntas.forEach { pergunta ->
+                    TipoPerguntaCard(pergunta,showComplete = showComplete)
+                }
+            }
             Button(
                 onClick = {
                     navController.navigate("tipo-pergunta") {

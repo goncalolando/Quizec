@@ -138,14 +138,25 @@ fun CriarPerguntaScreen(
         Button(
             onClick = {
                 if (validarEntradas()) {
+                    val tipoPergunta = when (tipoPerguntaSelecionada) {
+                        0 -> "P01"
+                        1 -> "P02"
+                        2 -> "P03"
+                        3 -> "P04"
+                        4 -> "P05"
+                        5 -> "P06"
+                        6 -> "P07"
+                        7 -> "P08"
+                        else -> "-1"
+                    }
                     viewModel.addPerguntaToFirestore(
                         Pergunta(
-                            id = "1",
+                            id = "",
                             titulo = nome,
                             imagem = "123",
-                            respostas = listOf(),
+                            respostas = listOf(""),
                             respostaCerta = listOf(isChecked.toString()),
-                            tipo = tipoPerguntaSelecionada.toString()
+                            tipo = tipoPergunta
                         )
                     )
                     if(errorMessage == null) {

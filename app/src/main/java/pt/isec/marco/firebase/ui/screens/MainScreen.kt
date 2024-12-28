@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -44,6 +45,7 @@ fun MainScreen(
     val context = LocalContext.current
     val currentScreen by navController.currentBackStackEntryAsState()
     var tipoPerguntaSelecionada by remember { mutableStateOf(-1) }
+    var showComplete by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -54,20 +56,14 @@ fun MainScreen(
                 },
                 actions = {
                     when(currentScreen?.destination?.route){
-                        "tipo-pergunta" ->{
+                        "criar-questionario" ->{
                             IconButton(
                                 onClick = {
-                                    if (tipoPerguntaSelecionada != -1) {
-                                        navController.navigate("criar-pergunta") {
-                                            popUpTo("criar-pergunta") {
-                                                inclusive = true
-                                            }
-                                        }
-                                    }
+                                    showComplete = !showComplete
                                 }
                             ) {
                                 Icon(
-                                    Icons.Filled.Done,
+                                    Icons.Filled.ArrowDropDown,
                                     contentDescription = "Save question"
                                 )
                             }
@@ -166,7 +162,8 @@ fun MainScreen(
                 ){
                     CriarQuestionarioScreen(
                         viewModel = viewModel,
-                        navController = navController
+                        navController = navController,
+                        showComplete = showComplete
                     )
 
                 }
