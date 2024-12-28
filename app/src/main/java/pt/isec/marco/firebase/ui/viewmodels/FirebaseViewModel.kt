@@ -37,7 +37,7 @@ data class Pergunta(
         }
     }
 }
-data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
+data class Questionario(var id: String, val descricao: String, val perguntas: List<Pergunta>)
 
 fun FirebaseUser.toUser(): User {
     val displayName = this.displayName?: ""
@@ -49,6 +49,8 @@ fun FirebaseUser.toUser(): User {
 open class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val perguntas = mutableStateOf(listOf<String>())
+    val questionarios = mutableStateOf(listOf<String>())
+
     open val user : State<User?>
         get() = _user
 
@@ -110,6 +112,14 @@ open class FirebaseViewModel : ViewModel() {
             FStorageUtil.addPerguntaToFirestore({ exception ->
                 _error.value = exception?.message
             }, pergunta, this@FirebaseViewModel)
+        }
+    }
+
+    fun addQuestioanrioToFirestore(questionario: Questionario) {
+        viewModelScope.launch {
+            FStorageUtil.addQuestionarioToFirestore({ exception ->
+                _error.value = exception?.message
+            }, questionario, this@FirebaseViewModel)
         }
     }
 

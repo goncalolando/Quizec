@@ -40,7 +40,7 @@ fun UtilizadorMenuScreen(
 
         Button(
             onClick = {
-                navController.navigate("menu-utilizador") {
+                navController.navigate("historico-questionarios") {
                     popUpTo("historico-questionarios") {
                         inclusive = true
                     }

@@ -52,6 +52,10 @@ fun CriarQuestionarioScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("User: ${viewModel.user.value?.email ?: ""}")
+            repeat(viewModel.perguntas.value.size) { iteration ->
+                val pergunta = viewModel.perguntas.value[iteration]
+
+            }
         }
         Column(
             modifier = Modifier
@@ -83,6 +87,15 @@ fun CriarQuestionarioScreen(
                 }
             ) {
                 Text("Adicionar perguntas já existentes")
+            }
+            Button(
+                onClick = {
+                    navController.navigate("seleciona-perguntas") {
+                        popUpTo("seleciona-perguntas") { inclusive = true }
+                    }
+                }
+            ) {
+                Text("Terminar criação do questionario")
             }
         }
 
