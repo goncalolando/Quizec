@@ -37,7 +37,17 @@ data class Pergunta(
         }
     }
 }
-data class Questionario(var id: String, val descricao: String, val perguntas: List<Pergunta>)
+data class Questionario(var id: String, val descricao: String, val perguntas: List<Pergunta>){
+    companion object {
+        fun fromFirestore(document: DocumentSnapshot): Questionario {
+            return Questionario(
+                id = document.id,
+                descricao = document.getString("descrição") ?: "",
+                perguntas = document.get("perguntas") as? List<Pergunta> ?: listOf(),
+            )
+        }
+    }
+}
 
 fun FirebaseUser.toUser(): User {
     val displayName = this.displayName?: ""

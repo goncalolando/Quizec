@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
@@ -291,7 +290,8 @@ fun MainScreen(
                 ){
                     HistoricoQuestionarioScreen(
                         viewModel = viewModel,
-                        navController = navController
+                        navController = navController,
+                        showComplete = showComplete
                     )
                 }
             }

@@ -101,6 +101,24 @@ class FStorageUtil {
                     onResult(null, exception)
                 }
         }
+        fun getQuestionarioById(id: String, onResult: (Questionario?, Throwable?) -> Unit) {
+            val db = Firebase.firestore
+
+            val docRef = db.collection("Questionarios").document("questionario_$id")
+
+            docRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val questionario = Questionario.fromFirestore(document)
+                        onResult(questionario, null) // Return the Pergunta
+                    } else {
+                        onResult(null, Throwable("Pergunta not found"))
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    onResult(null, exception)
+                }
+        }
 //data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
         fun addQuestionarioToFirestore(onResult: (Throwable?) -> Unit, questionario: Questionario, viewModel: FirebaseViewModel) {
             val db = Firebase.firestore

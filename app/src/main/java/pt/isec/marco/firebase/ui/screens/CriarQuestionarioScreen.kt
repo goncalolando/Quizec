@@ -49,6 +49,10 @@ fun CriarQuestionarioScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("User: ${viewModel.user.value?.email ?: ""}")
+            repeat(viewModel.perguntas.value.size) { iteration ->
+                val pergunta = viewModel.perguntas.value[iteration]
+
+            }
         }
         Column(
             modifier = Modifier
@@ -132,7 +136,6 @@ fun CriarQuestionarioScreen(
 
 suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
     val perguntas = mutableListOf<Pergunta>()
-    // Aguarda a recuperação de todas as perguntas
     for (perguntaId in perguntasIds) {
         val pergunta = getPerguntaByIdSuspended(perguntaId)
         if (pergunta != null) {
@@ -143,13 +146,10 @@ suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
 }
 suspend fun getPerguntaByIdSuspended(perguntaId: String): Pergunta? {
     return suspendCancellableCoroutine { continuation ->
-        // Chama a função original com um callback
         FStorageUtil.getPerguntaById(perguntaId) { pergunta, error ->
             if (error != null) {
-                // Se houver erro, "resumimos" a coroutine com a exceção
                 continuation.resumeWithException(error)
             } else {
-                // Se a pergunta foi encontrada, "resumimos" com o resultado
                 continuation.resume(pergunta)
             }
         }
