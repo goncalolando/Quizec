@@ -153,7 +153,7 @@ fun T02_Opcoes(
                     .fillMaxWidth()
             )
         }
-        if (isCheckedInvalid) {
+        if (isCheckedInvalid && i == countButton - 1) {
             Text(
                 text = "Por favor, selecione uma opção.",
                 color = Color.Red,
@@ -219,11 +219,11 @@ fun CriarPerguntaScreen(
             isNomeInvalid = false
         }
 
-        if (isChecked01 == null) {
-            isCheckedInvalid01 = true
+        if (isChecked02 == null) {
+            isCheckedInvalid02 = true
             isValid = false
         } else {
-            isCheckedInvalid01 = false
+            isCheckedInvalid02 = false
         }
 
         return isValid
@@ -284,40 +284,40 @@ fun CriarPerguntaScreen(
                 modifier = Modifier.padding(16.dp)
             )
         }
-
+        var pergunta by remember { mutableStateOf<Pergunta?>(null) }
         Button(
             onClick = {
                 when(tipoPerguntaSelecionada){
                     0 -> {
                         isEntradaValida = validarP01()
-                    }
-                    1 -> {
-                        isEntradaValida = validarP02()
-                    }
-                }
-
-                if (isEntradaValida) {
-                    val tipoPergunta = when (tipoPerguntaSelecionada) {
-                        0 -> "P01"
-                        1 -> "P02"
-                        2 -> "P03"
-                        3 -> "P04"
-                        4 -> "P05"
-                        5 -> "P06"
-                        6 -> "P07"
-                        7 -> "P08"
-                        else -> "-1"
-                    }
-                    viewModel.addPerguntaToFirestore(
-                        Pergunta(
+                        pergunta = Pergunta(
                             id = "",
                             titulo = nome,
                             imagem = "123",
                             respostas = listOf(""),
                             respostaCerta = listOf(isChecked01.toString()),
-                            tipo = tipoPergunta
+                            tipo = "P01"
                         )
-                    )
+                    }
+                    1 -> {
+                        isEntradaValida = validarP02()
+                        pergunta = Pergunta(
+                            id = "",
+                            titulo = nome,
+                            imagem = "123",
+                            respostas = listOf(""),
+                            respostaCerta = listOf(isChecked01.toString()),
+                            tipo = "P01"
+                        )
+                    }
+                }
+
+                if (isEntradaValida) {
+                    pergunta?.let {
+                        viewModel.addPerguntaToFirestore(
+                            it
+                        )
+                    }
                     if(errorMessage == null) {
                         navController.navigate("criar-questionario") {
                             popUpTo("criar-questionario") { inclusive = true }
