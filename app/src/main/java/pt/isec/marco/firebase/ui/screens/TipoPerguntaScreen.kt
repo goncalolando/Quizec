@@ -40,12 +40,18 @@ import androidx.compose.ui.unit.sp
 import pt.isec.marco.firebase.R
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 
+sealed class ShowAnswer {
+    object NotAnswered : ShowAnswer()
+    data class BooleanAnswer(val value: Boolean) : ShowAnswer()
+    data class IntAnswer(val value: Int?) : ShowAnswer()
+}
+
 
 @Composable
 fun TipoPerguntaCard(
     pergunta: Pergunta,
     showComplete: Boolean,
-    showAnswer: Boolean?
+    showAnswer: ShowAnswer?
 ) {
     Card(
         modifier = Modifier
@@ -70,8 +76,12 @@ fun TipoPerguntaCard(
 fun PerguntaVF(
     pergunta: Pergunta,
     showComplete: Boolean,
-    showAnswer: Boolean?
+    showAnswer: ShowAnswer?
 ){
+    val showAnswerBoolean = when (showAnswer) {
+        is ShowAnswer.BooleanAnswer -> showAnswer.value
+        else -> null
+    }
     Text(stringResource(R.string.P01_name))
     Text("Pergunta: ${pergunta.titulo}")
     if(showComplete){
@@ -84,12 +94,9 @@ fun PerguntaVF(
                 ) {
                     var isChecked  by remember { mutableStateOf<Boolean?>(null) }
 
-                    val isAnswerCorrect = showAnswer == true
-                    val isAnswerIncorrect = showAnswer == false
-
-                    val checkboxColor = when {
-                        isAnswerCorrect -> Color.Green
-                        isAnswerIncorrect -> Color.Red
+                    val checkboxColor = when (showAnswerBoolean) {
+                        true -> Color.Green
+                        false -> Color.Red
                         else -> Color.Gray
                     }
 
@@ -102,9 +109,9 @@ fun PerguntaVF(
                     ){
                         Text("Verdadeiro")
                         Checkbox(
-                            checked = isChecked == true || isAnswerCorrect,
+                            checked = isChecked == true || showAnswerBoolean == true,
                             onCheckedChange = { isChecked = if (it) true else null },
-                            enabled = showAnswer == null,
+                            enabled = showAnswerBoolean == null,
                             colors = CheckboxDefaults.colors(
                                 checkedColor = checkboxColor,
                                 uncheckedColor = checkboxColor.copy(alpha = 0.6f)
@@ -120,9 +127,9 @@ fun PerguntaVF(
                     ){
                         Text("Falso")
                         Checkbox(
-                            checked = isChecked == false || isAnswerIncorrect,
+                            checked = isChecked == false || showAnswerBoolean == false,
                             onCheckedChange = { isChecked = if (it) false else null },
-                            enabled = showAnswer == null,
+                            enabled = showAnswerBoolean == null,
                             colors = CheckboxDefaults.colors(
                                 checkedColor = checkboxColor,
                                 uncheckedColor = checkboxColor.copy(alpha = 0.6f)
@@ -140,15 +147,25 @@ fun PerguntaVF(
 fun PerguntaEM(
     pergunta: Pergunta,
     showComplete: Boolean,
-    showAnswer: Boolean?
+    showAnswer: ShowAnswer?
 ){
+    val selectedAnswerIndex = when (showAnswer) {
+        is ShowAnswer.IntAnswer -> showAnswer.value
+        else -> null
+    }
+
+    val isAnswerCorrect = showAnswer != null
+    val checkboxColor = if (isAnswerCorrect) Color.Green else Color.Gray
+
     Text(stringResource(R.string.P02_name))
     Spacer(modifier = Modifier.height(8.dp))
     Text("Pergunta: ${pergunta.titulo}")
-    if(showComplete){
+
+    if (showComplete) {
         Spacer(modifier = Modifier.height(16.dp))
 
         var selected by remember { mutableStateOf<Int?>(null) }
+
         pergunta.respostas.forEachIndexed { index, resposta ->
             Row(
                 modifier = Modifier
@@ -159,11 +176,17 @@ fun PerguntaEM(
                     fontSize = 16.sp
                 )
                 Checkbox(
-                    checked = selected == index,
+                    checked = selected == index || (showAnswer != null && selectedAnswerIndex == index),
                     onCheckedChange = {
-                        selected = if (it) index else null
+                        if (showAnswer == null) {
+                            selected = if (it) index else null
+                        }
                     },
-                    enabled = showAnswer == null
+                    enabled = showAnswer == null,
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = checkboxColor,
+                        uncheckedColor = checkboxColor.copy(alpha = 0.6f)
+                    )
                 )
             }
         }
