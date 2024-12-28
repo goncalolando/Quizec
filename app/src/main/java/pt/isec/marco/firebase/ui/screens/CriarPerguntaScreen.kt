@@ -32,9 +32,11 @@ import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 
 
 @Composable
-fun T01_PerguntaVF(){
-    var isChecked by remember { mutableStateOf<Boolean?>(null) }
-    var isCheckedInvalid by remember { mutableStateOf(false) }
+fun T01_PerguntaVF(
+    isChecked: Boolean?,
+    isCheckedInvalid: Boolean,
+    onCheckedChange: (Boolean?) -> Unit
+){
     Text("Solução:")
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -49,8 +51,7 @@ fun T01_PerguntaVF(){
             Checkbox(
                 checked = isChecked == true,
                 onCheckedChange = {
-                    isChecked = if (it) true else null
-                    isCheckedInvalid = false
+                    onCheckedChange(if (it) true else null)
                 }
             )
         }
@@ -62,8 +63,7 @@ fun T01_PerguntaVF(){
             Checkbox(
                 checked = isChecked == false,
                 onCheckedChange = {
-                    isChecked = if (it) false else null
-                    isCheckedInvalid = false
+                    onCheckedChange(if (it) false else null)
                 }
             )
         }
@@ -177,10 +177,9 @@ fun CriarPerguntaScreen(
     var isNomeInvalid by remember { mutableStateOf(false) }
     var isCheckedInvalid by remember { mutableStateOf(false) }
     val errorMessage by viewModel.error
+    var isEntradaValida by remember { mutableStateOf(false) }
 
-
-    // Função de validação que atualiza os estados de erro
-    fun validarEntradas(): Boolean {
+    fun validarP01(): Boolean {
         var isValid = true
         if (nome.isEmpty()) {
             isNomeInvalid = true
@@ -197,6 +196,26 @@ fun CriarPerguntaScreen(
         }
         return isValid
     }
+
+    fun validarP02(): Boolean {
+        var isValid = true
+        if (nome.isEmpty()) {
+            isNomeInvalid = true
+            isValid = false
+        } else {
+            isNomeInvalid = false
+        }
+
+        if (isChecked == null) {
+            isCheckedInvalid = true
+            isValid = false
+        } else {
+            isCheckedInvalid = false
+        }
+
+        return isValid
+    }
+
 
     Column(modifier = Modifier.fillMaxSize()) {
         OutlinedTextField(
@@ -222,7 +241,11 @@ fun CriarPerguntaScreen(
 
         when (tipoPerguntaSelecionada) {
             0 -> {
-                T01_PerguntaVF()
+                T01_PerguntaVF(
+                    isChecked = isChecked,
+                    isCheckedInvalid = isCheckedInvalid,
+                    onCheckedChange = { novoValor -> isChecked = novoValor }
+                )
             }
             1 -> {
                 T02_PerguntaEM()
@@ -240,29 +263,23 @@ fun CriarPerguntaScreen(
         if (errorMessage != null) {
             Text(
                 text = errorMessage ?: "",
-                color = androidx.compose.ui.graphics.Color.Red,
+                color = Color.Red,
                 modifier = Modifier.padding(16.dp)
             )
         }
 
         Button(
             onClick = {
-//                fun getValidacaoParaTipo(tipo: Int): Boolean {
-//                    return when (tipo) {
-//                        0 -> validarP01()
-//                        1 -> validarP02()
-//                        2 -> validarP03()
-//                        3 -> validarP04()
-//                        4 -> validarP05()
-//                        5 -> validarP06()
-//                        6 -> validarP07()
-//                        7 -> validarP08()
-//                        else -> false
-//                    }
-//                }
+                when(tipoPerguntaSelecionada){
+                    0 -> {
+                        isEntradaValida = validarP01()
+                    }
+                    1 -> {
+                        isEntradaValida = validarP02()
+                    }
+                }
 
-
-                if (validarEntradas()) {
+                if (isEntradaValida) {
                     val tipoPergunta = when (tipoPerguntaSelecionada) {
                         0 -> "P01"
                         1 -> "P02"
@@ -297,3 +314,5 @@ fun CriarPerguntaScreen(
         }
     }
 }
+
+
