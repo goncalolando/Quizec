@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.suspendCancellableCoroutine
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
+import pt.isec.marco.firebase.ui.viewmodels.Pergunta
+import pt.isec.marco.firebase.ui.viewmodels.Questionario
+import pt.isec.marco.firebase.utils.FStorageUtil
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 @Composable
 fun CriarQuestionarioScreen(
@@ -89,14 +96,21 @@ fun CriarQuestionarioScreen(
                 Text("Terminar Questionário")
             }
         if (confirmaDialog) {
-            ConfirmaDialog (
+            val perguntasIds = viewModel.perguntas.value
+            var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
+            LaunchedEffect(perguntasIds) {
+                perguntas = getPerguntasByIds(perguntasIds)}
+            ConfirmaDialog(
                 onConfirm = {
                     confirmaDialog = false
-                    // Lógica para finalizar o questionário
-
-                    showSuccessMessage = true
-
-
+                     viewModel.addQuestioanrioToFirestore(
+                            Questionario(
+                                id = "",
+                                descricao = "Questionáriofuncionado",
+                                perguntas = perguntas
+                            )
+                        )
+                     showSuccessMessage = true
                 },
                 onDismiss = { confirmaDialog = false }
             )
@@ -114,6 +128,32 @@ fun CriarQuestionarioScreen(
         }
         }
     }
+
+suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
+    val perguntas = mutableListOf<Pergunta>()
+    // Aguarda a recuperação de todas as perguntas
+    for (perguntaId in perguntasIds) {
+        val pergunta = getPerguntaByIdSuspended(perguntaId)
+        if (pergunta != null) {
+            perguntas.add(pergunta)
+        }
+    }
+    return perguntas
+}
+suspend fun getPerguntaByIdSuspended(perguntaId: String): Pergunta? {
+    return suspendCancellableCoroutine { continuation ->
+        // Chama a função original com um callback
+        FStorageUtil.getPerguntaById(perguntaId) { pergunta, error ->
+            if (error != null) {
+                // Se houver erro, "resumimos" a coroutine com a exceção
+                continuation.resumeWithException(error)
+            } else {
+                // Se a pergunta foi encontrada, "resumimos" com o resultado
+                continuation.resume(pergunta)
+            }
+        }
+    }
+}
 
 @Composable
     fun ConfirmaDialog(
