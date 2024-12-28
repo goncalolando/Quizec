@@ -78,9 +78,12 @@ fun T01_PerguntaVF(
 }
 
 @Composable
-fun T02_PerguntaEM() {
+fun T02_PerguntaEM(
+    isChecked: Int?,
+    selectedInvalid: Boolean,
+    onCheckedChange: (Int?) -> Unit
+) {
     var selected by remember { mutableIntStateOf(2) }
-    var selectedInvalid by remember { mutableStateOf(false) }
     val butoesLista = (2..6).toList()
 
     Column(
@@ -94,7 +97,6 @@ fun T02_PerguntaEM() {
                 Button(
                     onClick = {
                         selected = num
-                        selectedInvalid = false
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if(selected == num) Color.DarkGray else Color.LightGray
@@ -105,19 +107,25 @@ fun T02_PerguntaEM() {
             }
         }
         Text("Solução:")
-        T02_Opcoes(selected)
+        T02_Opcoes(
+            selected,
+            isChecked,
+            selectedInvalid,
+            onCheckedChange
+        )
     }
 }
 
 @Composable
 fun T02_Opcoes(
-    countButton: Int
+    countButton: Int,
+    selected: Int?,
+    isCheckedInvalid: Boolean,
+    onCheckedChange: (Int?) -> Unit
 ) {
-    var selected by remember { mutableStateOf<Int?>(null) }
 
     val nomes = remember(countButton) { mutableStateListOf(*Array(countButton) { "" }) }
     val isNomeInvalidList = remember(countButton) { mutableStateListOf(*Array(countButton) { false }) }
-    var isCheckedInvalid by remember { mutableStateOf(false) }
 
 
     for (i in 0 until countButton) {
@@ -129,8 +137,7 @@ fun T02_Opcoes(
             Checkbox(
                 checked = selected == i,
                 onCheckedChange = {
-                    selected = if (it) i else null
-                    isCheckedInvalid = false
+                    onCheckedChange(if (it) i else null)
                 }
             )
 
@@ -173,9 +180,15 @@ fun CriarPerguntaScreen(
     tipoPerguntaSelecionada: Int
 ) {
     var nome by remember { mutableStateOf("") }
-    var isChecked by remember { mutableStateOf<Boolean?>(null) }
     var isNomeInvalid by remember { mutableStateOf(false) }
-    var isCheckedInvalid by remember { mutableStateOf(false) }
+    // P01 -------------
+    var isChecked01 by remember { mutableStateOf<Boolean?>(null) }
+    var isCheckedInvalid01 by remember { mutableStateOf(false) }
+    // P02---------------
+    var isChecked02 by remember { mutableStateOf<Int?>(null) }
+    var isCheckedInvalid02 by remember { mutableStateOf(false) }
+
+
     val errorMessage by viewModel.error
     var isEntradaValida by remember { mutableStateOf(false) }
 
@@ -188,11 +201,11 @@ fun CriarPerguntaScreen(
             isNomeInvalid = false
         }
 
-        if (isChecked == null) {
-            isCheckedInvalid = true
+        if (isChecked01 == null) {
+            isCheckedInvalid01 = true
             isValid = false
         } else {
-            isCheckedInvalid = false
+            isCheckedInvalid01 = false
         }
         return isValid
     }
@@ -206,11 +219,11 @@ fun CriarPerguntaScreen(
             isNomeInvalid = false
         }
 
-        if (isChecked == null) {
-            isCheckedInvalid = true
+        if (isChecked01 == null) {
+            isCheckedInvalid01 = true
             isValid = false
         } else {
-            isCheckedInvalid = false
+            isCheckedInvalid01 = false
         }
 
         return isValid
@@ -242,13 +255,17 @@ fun CriarPerguntaScreen(
         when (tipoPerguntaSelecionada) {
             0 -> {
                 T01_PerguntaVF(
-                    isChecked = isChecked,
-                    isCheckedInvalid = isCheckedInvalid,
-                    onCheckedChange = { novoValor -> isChecked = novoValor }
+                    isChecked = isChecked01,
+                    isCheckedInvalid = isCheckedInvalid01,
+                    onCheckedChange = { novoValor -> isChecked01 = novoValor }
                 )
             }
             1 -> {
-                T02_PerguntaEM()
+                T02_PerguntaEM(
+                    isChecked = isChecked02,
+                    selectedInvalid = isCheckedInvalid02,
+                    onCheckedChange = { novoValor -> isChecked02 = novoValor }
+                )
             }
             2 -> {
                 T03_PerguntaMC()
@@ -297,7 +314,7 @@ fun CriarPerguntaScreen(
                             titulo = nome,
                             imagem = "123",
                             respostas = listOf(""),
-                            respostaCerta = listOf(isChecked.toString()),
+                            respostaCerta = listOf(isChecked01.toString()),
                             tipo = tipoPergunta
                         )
                     )
