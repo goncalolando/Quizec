@@ -111,6 +111,7 @@ fun CriarQuestionarioScreen(
                             )
                         )
                      showSuccessMessage = true
+                    viewModel.perguntas.value = emptyList()
                 },
                 onDismiss = { confirmaDialog = false }
             )

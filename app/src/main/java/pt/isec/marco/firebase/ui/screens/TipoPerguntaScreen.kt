@@ -58,7 +58,7 @@ fun TipoPerguntaCard(
     ) {
         when(pergunta.tipo){
             "P01" -> PerguntaVF(pergunta, showComplete,showAnswer)
-            "P02" -> PerguntaEM(pergunta)
+            "P02" -> PerguntaEM(pergunta, showComplete,showAnswer)
             else -> {
                 Text("Tipo de pergunta desconhecido")
             }
@@ -139,26 +139,34 @@ fun PerguntaVF(
 @Composable
 fun PerguntaEM(
     pergunta: Pergunta,
-    modifier: Modifier = Modifier
+    showComplete: Boolean,
+    showAnswer: Boolean?
 ){
     Text(stringResource(R.string.P02_name))
+    Spacer(modifier = Modifier.height(8.dp))
     Text("Pergunta: ${pergunta.titulo}")
-    Spacer(modifier = Modifier.height(16.dp))
-    var i = 0
-    while(pergunta.respostas.size > i) {
-        var checked by remember { mutableStateOf(true) }
-        Row() {
-            Text(
-                text = pergunta.respostas[i],
-                fontSize = 16.sp
+    if(showComplete){
+        Spacer(modifier = Modifier.height(16.dp))
 
-            )
-            Checkbox(
-                checked = checked,
-                onCheckedChange = { checked = it }
-            )
+        var selected by remember { mutableStateOf<Int?>(null) }
+        pergunta.respostas.forEachIndexed { index, resposta ->
+            Row(
+                modifier = Modifier
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = resposta,
+                    fontSize = 16.sp
+                )
+                Checkbox(
+                    checked = selected == index,
+                    onCheckedChange = {
+                        selected = if (it) index else null
+                    },
+                    enabled = showAnswer == null
+                )
+            }
         }
-        i++
     }
 }
 
@@ -194,11 +202,11 @@ fun TipoPerguntaScreen(
     val tiposPerguntas = listOf(
         Pergunta(
             "identificador", "Exemplo de pergunta",
-            "img", listOf("Resposta 1"), listOf("Resposta 3"),"P01"
+            "img", listOf("Resposta 1"), listOf("true"),"P01"
         ),
         Pergunta(
             "identificador", "TItulo",
-            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3"),"P02"
+            "img", listOf("Opcao 1", "Opcao 2"), listOf("Resposta 3"),"P02"
         ),
         Pergunta(
             "identificador", "TItulo",
