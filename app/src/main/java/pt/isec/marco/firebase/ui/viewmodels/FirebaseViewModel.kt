@@ -42,7 +42,7 @@ data class Questionario(var id: String, val descricao: String, val perguntas: Li
         fun fromFirestore(document: DocumentSnapshot): Questionario {
             return Questionario(
                 id = document.id,
-                descricao = document.getString("descrição") ?: "",
+                descricao = document.getString("descricao") ?: "",
                 perguntas = document.get("perguntas") as? List<Pergunta> ?: listOf(),
             )
         }
