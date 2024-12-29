@@ -21,7 +21,6 @@ fun HistoricoQuestionarioScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController,
     showComplete: Boolean = false,
-    showAnswer: Boolean? = null
 ) {
     val questionarioIds = viewModel.questionarios.value
     var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
@@ -39,14 +38,26 @@ fun HistoricoQuestionarioScreen(
     }
 
     Column(Modifier.fillMaxSize()){
-        var i =0;
         if (questionarios.isNotEmpty()) {
             questionarios.forEach { questionario ->
-                var answer by remember { mutableStateOf<Boolean?>(null) }
-
+                var answer by remember { mutableStateOf<ShowAnswer?>(null) }
                 Text("Questionario1: ${questionario.descricao}")
                 Text("Questionario3: ${questionario.id}")
                 questionario.perguntas.forEach { pergunta ->
+                    answer = when (pergunta.tipo) {
+                        "P01" -> {
+                            when (pergunta.respostaCerta.getOrNull(0)) {
+                                "true" -> ShowAnswer.BooleanAnswer(true)
+                                "false" -> ShowAnswer.BooleanAnswer(false)
+                                else -> ShowAnswer.NotAnswered
+                            }
+                        }
+                        "P02" -> {
+                            val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
+                            ShowAnswer.IntAnswer(respostaIndex)
+                        }
+                        else -> ShowAnswer.NotAnswered
+                    }
                     TipoPerguntaCard(
                         pergunta,
                         showComplete = showComplete,
