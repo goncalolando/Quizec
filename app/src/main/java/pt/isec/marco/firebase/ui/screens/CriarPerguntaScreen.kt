@@ -111,7 +111,53 @@ fun T02_PerguntaEM(
             }
         }
         Text("Solução:")
-        T02_Opcoes(
+            T02_Opcoes(
+                selected,
+                isChecked,
+                selectedInvalid,
+                nomes,
+                isNomeInvalidList,
+                onCheckedChange,
+                onNomeChange
+            )
+    }
+}
+
+@Composable
+fun T03_PerguntaEM(
+    selected: Int,
+    isChecked: List<Int>,
+    selectedInvalid: Boolean,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onCheckedChange: (List<Int>) -> Unit,
+    onNomeChange: (Int, String) -> Unit,
+    onCountChange: (Int) -> Unit
+) {
+    val butoesLista = (2..6).toList()
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            butoesLista.forEach { num ->
+                Button(
+                    onClick = {
+                        onCountChange(num)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if(selected == num) Color.DarkGray else Color.LightGray
+                    )
+                ) {
+                    Text(num.toString())
+                }
+            }
+        }
+        Text("Solução:")
+        T03_Opcoes(
             selected,
             isChecked,
             selectedInvalid,
@@ -170,6 +216,57 @@ fun T02_Opcoes(
 }
 
 
+@Composable
+fun T03_Opcoes(
+    countButton: Int,
+    selected: List<Int>,
+    isCheckedInvalid: Boolean,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onCheckedChange: (List<Int>) -> Unit,
+    onNomeChange: (Int, String) -> Unit
+) {
+    for (i in 0 until countButton) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = selected.contains(i),
+                onCheckedChange = { isChecked ->
+                    if (isChecked) {
+                        onCheckedChange(selected + i)
+                    } else {
+                        onCheckedChange(selected.filter { it != i })
+                    }
+                }
+            )
+
+            OutlinedTextField(
+                value = nomes[i],
+                isError = isNomeInvalidList[i],
+                label = { Text("Resposta:") },
+                onValueChange = { newText ->
+                    onNomeChange(i, newText)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+
+        if (isCheckedInvalid && i == countButton - 1) {
+            Text(
+                text = "Por favor, selecione uma opção.",
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+    }
+}
+
+
+
 
 @Composable
 fun T03_PerguntaMC() {
@@ -196,20 +293,14 @@ fun CriarPerguntaScreen(
     var countButton by remember { mutableIntStateOf(2) }
     val nomes = remember(countButton) { mutableStateListOf(*Array(countButton) { "" }) }
     val isNomeInvalidList = remember(countButton) { mutableStateListOf(*Array(countButton) { false }) }
-
-
+    // P03---------------
+    var isChecked03 by remember { mutableStateOf<List<Int>>(emptyList()) }
 
     val errorMessage by viewModel.error
     var isEntradaValida by remember { mutableStateOf(false) }
 
     fun validarP01(): Boolean {
         var isValid = true
-        if (nome.isEmpty()) {
-            isNomeInvalid = true
-            isValid = false
-        } else {
-            isNomeInvalid = false
-        }
 
         if (isChecked01 == null) {
             isCheckedInvalid01 = true
@@ -222,14 +313,28 @@ fun CriarPerguntaScreen(
 
     fun validarP02(): Boolean {
         var isValid = true
-        if (nome.isEmpty()) {
-            isNomeInvalid = true
-            isValid = false
-        } else {
-            isNomeInvalid = false
-        }
 
         if (isChecked02 == null) {
+            isCheckedInvalid02 = true
+            isValid = false
+        } else {
+            isCheckedInvalid02 = false
+        }
+        for(i in 0 until countButton) {
+            if (nomes[i].isEmpty()) {
+                isNomeInvalidList[i] = true
+                isValid = false
+            } else {
+                isNomeInvalidList[i] = false
+            }
+        }
+        return isValid
+    }
+
+    fun validarP03(): Boolean{
+        var isValid = true
+
+        if (isChecked03.isEmpty()) {
             isCheckedInvalid02 = true
             isValid = false
         } else {
@@ -269,34 +374,54 @@ fun CriarPerguntaScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (tipoPerguntaSelecionada) {
-            0 -> {
-                T01_PerguntaVF(
-                    isChecked = isChecked01,
-                    isCheckedInvalid = isCheckedInvalid01,
-                    onCheckedChange = { novoValor -> isChecked01 = novoValor }
-                )
-            }
-            1 -> {
-                T02_PerguntaEM(
-                    selected = countButton,
-                    isChecked = isChecked02,
-                    selectedInvalid = isCheckedInvalid02,
-                    onCheckedChange = { novoValor -> isChecked02 = novoValor },
-                    nomes = nomes,
-                    isNomeInvalidList = isNomeInvalidList,
-                    onNomeChange = { index, novoValor ->
-                        nomes[index] = novoValor
-                        isNomeInvalidList[index] = false
-                    },
-                    onCountChange = { novoValor -> countButton = novoValor }
-                )
-            }
-            2 -> {
-                T03_PerguntaMC()
-            }
-            else -> {
-                Text("Tipo de pergunta desconhecido")
+        var isValid = true
+        if (nome.isEmpty()) {
+            isNomeInvalid = true
+            isValid = false
+        } else {
+            isNomeInvalid = false
+        }
+        if (isValid) {
+            when (tipoPerguntaSelecionada) {
+                0 -> {
+                    T01_PerguntaVF(
+                        isChecked = isChecked01,
+                        isCheckedInvalid = isCheckedInvalid01,
+                        onCheckedChange = { novoValor -> isChecked01 = novoValor }
+                    )
+                }
+                1 -> {
+                    T02_PerguntaEM(
+                        selected = countButton,
+                        isChecked = isChecked02,
+                        selectedInvalid = isCheckedInvalid02,
+                        onCheckedChange = { novoValor -> isChecked02 = novoValor },
+                        nomes = nomes,
+                        isNomeInvalidList = isNomeInvalidList,
+                        onNomeChange = { index, novoValor ->
+                            nomes[index] = novoValor
+                            isNomeInvalidList[index] = false
+                        },
+                        onCountChange = { novoValor -> countButton = novoValor }
+                    )
+                }
+                2 -> {
+                    T03_PerguntaEM(
+                        selected = countButton,
+                        isChecked = isChecked03,
+                        selectedInvalid = isCheckedInvalid02,
+                        onCheckedChange = { novoValor -> isChecked03 = novoValor },
+                        nomes = nomes,
+                        isNomeInvalidList = isNomeInvalidList,
+                        onNomeChange = { index, novoValor ->
+                            nomes[index] = novoValor
+                            isNomeInvalidList[index] = false
+                        },
+                        onCountChange = { novoValor -> countButton = novoValor })
+                }
+                else -> {
+                    Text("Tipo de pergunta desconhecido")
+                }
             }
         }
 
@@ -333,6 +458,24 @@ fun CriarPerguntaScreen(
                             respostas = nomes,
                             respostaCerta = listOf(isChecked02.toString()),
                             tipo = "P02"
+                        )
+                    }
+                    2 -> {
+                        val respostasCertas = List(isChecked03.size) { "" }.toMutableList()
+
+                        if (isChecked03.isNotEmpty()) {
+                            isChecked03.forEachIndexed { index, item ->
+                                respostasCertas[index] = isChecked03[index].toString()
+                            }
+                        }
+                        isEntradaValida = validarP03()
+                        pergunta = Pergunta(
+                            id = "",
+                            titulo = nome,
+                            imagem = "123",
+                            respostas = nomes,
+                            respostaCerta = respostasCertas,
+                            tipo = "P03"
                         )
                     }
                 }

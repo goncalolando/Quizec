@@ -44,6 +44,7 @@ sealed class ShowAnswer {
     object NotAnswered : ShowAnswer()
     data class BooleanAnswer(val value: Boolean) : ShowAnswer()
     data class IntAnswer(val value: Int?) : ShowAnswer()
+    data class ListAnswer(val value: List<Int>) : ShowAnswer()
 }
 
 
@@ -64,7 +65,8 @@ fun TipoPerguntaCard(
     ) {
         when(pergunta.tipo){
             "P01" -> PerguntaVF(pergunta, showComplete,showAnswer)
-            "P02" -> PerguntaEM(pergunta, showComplete,showAnswer)
+            "P02" -> PerguntaEM(pergunta, showComplete,showAnswer,false)
+            "P03" -> PerguntaEM(pergunta, showComplete,showAnswer,true)
             else -> {
                 Text("Tipo de pergunta desconhecido")
             }
@@ -147,17 +149,25 @@ fun PerguntaVF(
 fun PerguntaEM(
     pergunta: Pergunta,
     showComplete: Boolean,
-    showAnswer: ShowAnswer?
+    showAnswer: ShowAnswer?,
+    mults: Boolean
 ){
     val selectedAnswerIndex = when (showAnswer) {
         is ShowAnswer.IntAnswer -> showAnswer.value
         else -> null
     }
 
+    val selectedAnswerList = when (showAnswer) {
+        is ShowAnswer.ListAnswer -> showAnswer.value
+        else -> null
+    }
+
     val isAnswerCorrect = showAnswer != null
     val checkboxColor = if (isAnswerCorrect) Color.Green else Color.Gray
-
-    Text(stringResource(R.string.P02_name))
+    if(mults)
+        Text(stringResource(R.string.P02_name))
+    else
+        Text(stringResource(R.string.P03_name))
     Spacer(modifier = Modifier.height(8.dp))
     Text("Pergunta: ${pergunta.titulo}")
 
@@ -165,6 +175,7 @@ fun PerguntaEM(
         Spacer(modifier = Modifier.height(16.dp))
 
         var selected by remember { mutableStateOf<Int?>(null) }
+        var selectedMultiple by remember { mutableStateOf<List<Int>>(emptyList()) }
 
         pergunta.respostas.forEachIndexed { index, resposta ->
             Row(
@@ -176,10 +187,22 @@ fun PerguntaEM(
                     fontSize = 16.sp
                 )
                 Checkbox(
-                    checked = selected == index || (showAnswer != null && selectedAnswerIndex == index),
+                    checked = if (mults) {
+                        selectedMultiple.contains(index) || (showAnswer != null && selectedAnswerList?.contains(index) == true)
+                    } else {
+                        selected == index || (showAnswer != null && selectedAnswerIndex == index)
+                    },
                     onCheckedChange = {
                         if (showAnswer == null) {
-                            selected = if (it) index else null
+                            if (mults) {
+                                selectedMultiple = if (it) {
+                                    selectedMultiple + index
+                                } else {
+                                    selectedMultiple.filter { it != index }
+                                }
+                            } else {
+                                selected = if (it) index else null
+                            }
                         }
                     },
                     enabled = showAnswer == null,
@@ -224,20 +247,33 @@ fun TipoPerguntaScreen(
 ) {
     val tiposPerguntas = listOf(
         Pergunta(
-            "identificador", "Exemplo de pergunta",
-            "img", listOf("Resposta 1"), listOf("true"),"P01"
+            id = "Q1",
+            titulo = "A água ferve a 100°C?",
+            imagem = "imagem_pergunta1",
+            respostas = listOf(""),
+            respostaCerta = listOf("true"),
+            tipo = "P01"
         ),
         Pergunta(
-            "identificador", "TItulo",
-            "img", listOf("Opcao 1", "Opcao 2"), listOf("Resposta 3"),"P02"
+            id = "Q2",
+            titulo = "Qual é a capital da França?",
+            imagem = "imagem_pergunta2",
+            respostas = listOf("Londres", "Berlim", "Paris", "Madrid"),
+            respostaCerta = listOf("Paris"),
+            tipo = "P02"
         ),
         Pergunta(
-            "identificador", "TItulo",
-            "img", listOf("Resposta 3", "Resposta 4"), listOf("Resposta 3"),"BF"
+            id = "Q3",
+            titulo = "Selecione os continentes",
+            imagem = "imagem_pergunta3",
+            respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico"),
+            respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+            tipo = "P03"
         )
+
     )
 
-    var selectedPage by remember { mutableStateOf(-1) } // Guardar a pagina selecionada
+    var selectedPage by remember { mutableStateOf(-1) }
 
     Box(
         modifier = Modifier

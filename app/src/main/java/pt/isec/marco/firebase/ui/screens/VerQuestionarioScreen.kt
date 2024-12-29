@@ -55,6 +55,10 @@ fun VerQuestionarioScreen(
                         val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
                         ShowAnswer.IntAnswer(respostaIndex)
                     }
+                    "P03" -> {
+                       val respostaIndex = pergunta.respostaCerta.mapNotNull { it.toIntOrNull() }
+                        ShowAnswer.ListAnswer(respostaIndex)
+                    }
                     else -> ShowAnswer.NotAnswered
                 }
 
