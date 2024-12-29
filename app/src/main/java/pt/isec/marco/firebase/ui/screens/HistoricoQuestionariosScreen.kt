@@ -25,26 +25,41 @@ fun HistoricoQuestionarioScreen(
     showComplete: Boolean = false,
 ) {
     val questionarioIds = viewModel.questionarios.value
-    //var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
+    var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
+    val perguntasIds = viewModel.perguntas.value
     var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
-    val questionarios by remember { viewModel.questionarios.collectAsState() }  // Observando a lista de perguntas
 
     LaunchedEffect(questionarioIds) {
         questionarios = mutableListOf()
 
-        questionarios = questionarioIds.mapNotNull { questionarioId ->
-            FStorageUtil.getQuestionarioByIdSuspend(questionarioId)
-        }
+        questionarioIds.forEach { questionarioId ->
+            FStorageUtil.getQuestionarioById(questionarioId) { questionario, _ ->
+                if (questionario != null) {
+                    questionarios = questionarios + questionario
+                }
+            }
+            questionarios = questionarioIds.mapNotNull { questionarioId ->
+                FStorageUtil.getQuestionarioByIdSuspend(questionarioId)
+            }
 
-        if (questionarios.isNotEmpty()) {
-            perguntas = questionarios.flatMap { questionario ->
-                questionario.perguntas.mapNotNull { perguntaId ->
-                    FStorageUtil.getPerguntaByIdSuspend(perguntaId)
+            if (questionarios.isNotEmpty()) {
+                questionarios.forEach { questionario ->
+                    questionario.perguntas.forEach { perguntaId ->
+                        FStorageUtil.getPerguntaById(perguntaId) { pergunta, _ ->
+                            if (pergunta != null) {
+                                perguntas = perguntas + pergunta
+                            }
+                        }
+                        perguntas = questionarios.flatMap { questionario ->
+                            questionario.perguntas.mapNotNull { perguntaId ->
+                                FStorageUtil.getPerguntaByIdSuspend(perguntaId)
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-
     Column(Modifier.fillMaxSize()) {
         if (questionarios.isNotEmpty()) {
             questionarios.forEach { questionario ->
@@ -60,10 +75,13 @@ fun HistoricoQuestionarioScreen(
                                 else -> ShowAnswer.NotAnswered
                             }
                         }
+
                         "P02" -> {
-                            val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
+                            val respostaIndex =
+                                pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
                             ShowAnswer.IntAnswer(respostaIndex)
                         }
+
                         else -> ShowAnswer.NotAnswered
                     }
                     Text("Pergunta: ${pergunta.titulo}")
