@@ -93,23 +93,7 @@ fun T02_PerguntaEM(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            butoesLista.forEach { num ->
-                Button(
-                    onClick = {
-                        onCountChange(num)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if(selected == num) Color.DarkGray else Color.LightGray
-                    )
-                ) {
-                    Text(num.toString())
-                }
-            }
-        }
+        BotoesLista(butoesLista, selected, onCountChange)
         Text("Solução:")
             T02_Opcoes(
                 selected,
@@ -135,27 +119,10 @@ fun T03_PerguntaEM(
     onCountChange: (Int) -> Unit
 ) {
     val butoesLista = (2..6).toList()
-
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            butoesLista.forEach { num ->
-                Button(
-                    onClick = {
-                        onCountChange(num)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if(selected == num) Color.DarkGray else Color.LightGray
-                    )
-                ) {
-                    Text(num.toString())
-                }
-            }
-        }
+        BotoesLista(butoesLista, selected, onCountChange)
         Text("Solução:")
         T03_Opcoes(
             selected,
@@ -170,6 +137,110 @@ fun T03_PerguntaEM(
 }
 
 @Composable
+fun BotoesLista(
+    butoesLista: List<Int> = (2..6).toList(),
+    selected: Int? = null,
+    onCountChange: (Int) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        butoesLista.forEach { num ->
+            Button(
+                onClick = {
+                    onCountChange(num)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if(selected == num) Color.DarkGray else Color.LightGray
+                )
+            ) {
+                Text(num.toString())
+            }
+        }
+    }
+}
+
+@Composable
+fun T04_PerguntaCorrespondecia(
+    selected: Int,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit,
+    onCountChange: (Int) -> Unit
+) {
+    val butoesLista = (2..6).toList()
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        BotoesLista(butoesLista, selected, onCountChange)
+        Text("Solução:")
+        T04_Opcoes(
+            selected,
+            nomes,
+            isNomeInvalidList,
+            onNomeChange
+        )
+    }
+
+
+}
+
+@Composable
+fun T04_Opcoes(
+    countButton: Int,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit
+) {
+    for (i in 0 until countButton){
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+        ){
+            OutlinedTextField(
+                value = nomes.getOrElse(i) { "" },
+                onValueChange = { newText -> onNomeChange(i, newText) },
+                label = { Text("${i + 1}. ") },
+                isError = isNomeInvalidList.getOrElse(i) { false },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            )
+            OutlinedTextField(
+                value = nomes.getOrElse(i + countButton) { "" },
+                onValueChange = { newText -> onNomeChange(i + countButton, newText) },
+                label = { Text("${('A' + i)}. ") },
+                isError = isNomeInvalidList.getOrElse(i + countButton) { false },
+                modifier = Modifier
+                    .weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+fun OutlinedTextField(
+    text : String,
+    i: Int,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit
+){
+    OutlinedTextField(
+        value = nomes[i],
+        isError = isNomeInvalidList[i],
+        label = { Text(text) },
+        onValueChange = { newText ->
+            onNomeChange(i, newText)
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+    )
+
+}
+
+@Composable
 fun T02_Opcoes(
     countButton: Int,
     selected: Int?,
@@ -179,8 +250,6 @@ fun T02_Opcoes(
     onCheckedChange: (Int?) -> Unit,
     onNomeChange: (Int, String) -> Unit
 ) {
-
-
     for (i in 0 until countButton) {
         Row(
             modifier = Modifier
@@ -193,17 +262,7 @@ fun T02_Opcoes(
                     onCheckedChange(if (it) i else null)
                 }
             )
-
-            OutlinedTextField(
-                value = nomes[i],
-                isError = isNomeInvalidList[i],
-                label = { Text("Resposta:") },
-                onValueChange = { newText ->
-                    onNomeChange(i, newText)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            OutlinedTextField("Resposta :",i, nomes, isNomeInvalidList, onNomeChange)
         }
         if (isCheckedInvalid && i == countButton - 1) {
             Text(
@@ -242,17 +301,7 @@ fun T03_Opcoes(
                     }
                 }
             )
-
-            OutlinedTextField(
-                value = nomes[i],
-                isError = isNomeInvalidList[i],
-                label = { Text("Resposta:") },
-                onValueChange = { newText ->
-                    onNomeChange(i, newText)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            OutlinedTextField("Resposta: ",i, nomes, isNomeInvalidList, onNomeChange)
         }
 
         if (isCheckedInvalid && i == countButton - 1) {
@@ -263,16 +312,6 @@ fun T03_Opcoes(
             )
         }
     }
-}
-
-
-
-
-@Composable
-fun T03_PerguntaMC() {
-    var selected by remember { mutableStateOf<Int?>(null) }
-    var selectedInvalid by remember { mutableStateOf(false) }
-    Text("Solução:")
 }
 
 
@@ -295,7 +334,9 @@ fun CriarPerguntaScreen(
     val isNomeInvalidList = remember(countButton) { mutableStateListOf(*Array(countButton) { false }) }
     // P03---------------
     var isChecked03 by remember { mutableStateOf<List<Int>>(emptyList()) }
-
+    // P04---------------
+    val nomes04 = remember(countButton) { mutableStateListOf(*Array(countButton*2) { "" }) }
+    val isNomeInvalidList04 = remember(countButton) { mutableStateListOf(*Array(countButton*2) { false }) }
     val errorMessage by viewModel.error
     var isEntradaValida by remember { mutableStateOf(false) }
 
@@ -346,6 +387,18 @@ fun CriarPerguntaScreen(
                 isValid = false
             } else {
                 isNomeInvalidList[i] = false
+            }
+        }
+        return isValid
+    }
+
+    fun validarP04(): Boolean{
+        var isValid = true
+        for(i in 0 until countButton*2) {
+            if (nomes04[i].isEmpty()) {
+                isNomeInvalidList04[i] = true
+            } else {
+                isNomeInvalidList04[i] = false
             }
         }
         return isValid
@@ -419,6 +472,18 @@ fun CriarPerguntaScreen(
                         },
                         onCountChange = { novoValor -> countButton = novoValor })
                 }
+                3 -> {
+                    T04_PerguntaCorrespondecia(
+                        selected = countButton,
+                        nomes = nomes04,
+                        isNomeInvalidList = isNomeInvalidList04,
+                        onNomeChange = { index, novoValor ->
+                            nomes04[index] = novoValor
+                            isNomeInvalidList04[index] = false
+                        },
+                        onCountChange = { novoValor -> countButton = novoValor }
+                    )
+                }
                 else -> {
                     Text("Tipo de pergunta desconhecido")
                 }
@@ -476,6 +541,17 @@ fun CriarPerguntaScreen(
                             respostas = nomes,
                             respostaCerta = respostasCertas,
                             tipo = "P03"
+                        )
+                    }
+                    3 -> {
+                        isEntradaValida = validarP04()
+                        pergunta = Pergunta(
+                            id = "",
+                            titulo = nome,
+                            imagem = "123",
+                            respostas = nomes04,
+                            respostaCerta = emptyList(),
+                            tipo = "P04"
                         )
                     }
                 }

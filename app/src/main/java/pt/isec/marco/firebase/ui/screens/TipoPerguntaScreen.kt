@@ -1,8 +1,10 @@
 package pt.isec.marco.firebase.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Row
@@ -10,8 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.rememberPagerState
 
@@ -27,18 +31,29 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pt.isec.marco.firebase.R
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
+import kotlin.math.roundToInt
 
 sealed class ShowAnswer {
     object NotAnswered : ShowAnswer()
@@ -67,6 +82,8 @@ fun TipoPerguntaCard(
             "P01" -> PerguntaVF(pergunta, showComplete,showAnswer)
             "P02" -> PerguntaEM(pergunta, showComplete,showAnswer,false)
             "P03" -> PerguntaEM(pergunta, showComplete,showAnswer,true)
+            "P04" -> PerguntaCorrespondecia(pergunta)
+            "P06" -> PerguntaEspacosEmBranco(pergunta)
             else -> {
                 Text("Tipo de pergunta desconhecido")
             }
@@ -224,116 +241,251 @@ fun PerguntaCorrespondecia(
     Text(stringResource(R.string.P04_name))
     Text("Pergunta: ${pergunta.titulo}")
     Spacer(modifier = Modifier.height(16.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Column(
+            modifier = Modifier
+                .weight(2f)
+                .fillMaxWidth()
+        ) {
+            Text("Resposta:")
+            for (i in 0 until pergunta.respostas.size / 2) {
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(all = 3.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.LightGray)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${i + 1}. ",
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(start = 8.dp),
+                                color = Color.Blue
+                            )
+                            Text(
+                                text = pergunta.respostas[i],
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(start = 4.dp),
+                                color = Color.Black
+                            )
+                        }
+                    }
 
-}
+                    Spacer(modifier = Modifier.width(8.dp))
 
-@Composable
-fun PerguntaEspacosEmBranco(
-    pergunta: Pergunta,
-    modifier: Modifier = Modifier
-){
-    Text(stringResource(R.string.P06_name))
-    Text("Pergunta: ${pergunta.titulo}")
-    Spacer(modifier = Modifier.height(16.dp))
-}
-
-
-
-@Composable
-fun TipoPerguntaScreen(
-    viewModel: FirebaseViewModel,
-    navController: NavHostController,
-    onPerguntaSelected: (Int) -> Unit
-) {
-    val tiposPerguntas = listOf(
-        Pergunta(
-            id = "Q1",
-            titulo = "A água ferve a 100°C?",
-            imagem = "imagem_pergunta1",
-            respostas = listOf(""),
-            respostaCerta = listOf("true"),
-            tipo = "P01"
-        ),
-        Pergunta(
-            id = "Q2",
-            titulo = "Qual é a capital da França?",
-            imagem = "imagem_pergunta2",
-            respostas = listOf("Londres", "Berlim", "Paris", "Madrid"),
-            respostaCerta = listOf("Paris"),
-            tipo = "P02"
-        ),
-        Pergunta(
-            id = "Q3",
-            titulo = "Selecione os continentes",
-            imagem = "imagem_pergunta3",
-            respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico"),
-            respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
-            tipo = "P03"
-        )
-
-    )
-
-    var selectedPage by remember { mutableStateOf(-1) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        val pagerState = rememberPagerState(pageCount = {
-            tiposPerguntas.size
-        })
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
-        ) { page ->
-            val pergunta = tiposPerguntas[page]
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(4.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .padding(2.dp)
-            ) {
-                TipoPerguntaCard(
-                    pergunta, true,null
-                )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(all = 3.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.LightGray)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "${('A' + i)}. ",
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(start = 8.dp),
+                                color = Color.Blue
+                            )
+                            Text(
+                                text = pergunta.respostas[i + pergunta.respostas.size / 2],
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(start = 4.dp),
+                                color = Color.Black
+                            )
+                        }
+                    }
+                }
             }
         }
-        Button(
-            onClick = {
-                selectedPage = pagerState.currentPage
-                onPerguntaSelected(selectedPage)
-                navController.navigate("criar-pergunta") {
-                    popUpTo("criar-pergunta") { inclusive = true }
-                }
-            },
+        Column(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(64.dp)
-        ) {
-            Text("Escolher")
-        }
-
-        Row(
-            Modifier
-                .align(Alignment.BottomCenter)
-                .wrapContentHeight()
+                .weight(1f)
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.Center
         ) {
-            repeat(pagerState.pageCount) { iteration ->
-                val color =
-                    if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
-                Box(
+            Text("Resposta:")
+            for (i in 0 until pergunta.respostas.size / 2) {
+                Row(
                     modifier = Modifier
-                        .padding(2.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                        .size(16.dp)
-                )
+                        .padding(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .height(20.dp)
+                            .width(20.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.LightGray)
+                    ) {
+                        Text(
+                            text = (i + 1).toString(),
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = Color.Blue
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .height(20.dp)
+                            .width(20.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.LightGray)
+                    ) {
+                        var upperCaseText by remember { mutableStateOf("") }
+                        TextField(
+                            value = upperCaseText,
+                            onValueChange = { newText ->
+                                if (newText.length == 1 && newText[0].isLetter()) {
+                                    upperCaseText = newText.uppercase()
+                                }
+                            },
+                            modifier = Modifier.padding(start = 8.dp)
+                                .padding(all = 1.dp)
+                                .background(Color.Transparent),
+                            readOnly = false
+                        )
+                    }
+                }
             }
         }
     }
 }
+
+
+
+    @Composable
+    fun PerguntaEspacosEmBranco(
+        pergunta: Pergunta,
+        modifier: Modifier = Modifier
+    ) {
+        Text(stringResource(R.string.P06_name))
+        Text("Pergunta: ${pergunta.titulo}")
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+
+
+    @Composable
+    fun TipoPerguntaScreen(
+        viewModel: FirebaseViewModel,
+        navController: NavHostController,
+        onPerguntaSelected: (Int) -> Unit
+    ) {
+        val tiposPerguntas = listOf(
+            Pergunta(
+                id = "Q1",
+                titulo = "A água ferve a 100°C?",
+                imagem = "imagem_pergunta1",
+                respostas = listOf(""),
+                respostaCerta = listOf("true"),
+                tipo = "P01"
+            ),
+            Pergunta(
+                id = "Q2",
+                titulo = "Qual é a capital da França?",
+                imagem = "imagem_pergunta2",
+                respostas = listOf("Londres", "Berlim", "Paris", "Madrid"),
+                respostaCerta = listOf("Paris"),
+                tipo = "P02"
+            ),
+            Pergunta(
+                id = "Q3",
+                titulo = "Selecione os continentes",
+                imagem = "imagem_pergunta3",
+                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico"),
+                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                tipo = "P03"
+            ),
+            Pergunta(
+                id = "Q3",
+                titulo = "Selecione os continentes",
+                imagem = "imagem_pergunta3",
+                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
+                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                tipo = "P04"
+            )
+
+        )
+
+        var selectedPage by remember { mutableStateOf(-1) }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            val pagerState = rememberPagerState(pageCount = {
+                tiposPerguntas.size
+            })
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                val pergunta = tiposPerguntas[page]
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .padding(2.dp)
+                ) {
+                    TipoPerguntaCard(
+                        pergunta, true, null
+                    )
+                }
+            }
+            Button(
+                onClick = {
+                    selectedPage = pagerState.currentPage
+                    onPerguntaSelected(selectedPage)
+                    navController.navigate("criar-pergunta") {
+                        popUpTo("criar-pergunta") { inclusive = true }
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(64.dp)
+            ) {
+                Text("Escolher")
+            }
+
+            Row(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(pagerState.pageCount) { iteration ->
+                    val color =
+                        if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                            .size(16.dp)
+                    )
+                }
+            }
+        }
+    }
 
