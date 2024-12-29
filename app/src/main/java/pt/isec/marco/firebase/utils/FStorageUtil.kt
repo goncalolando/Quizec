@@ -13,6 +13,8 @@ import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import pt.isec.marco.firebase.ui.viewmodels.Questionario
 import java.io.IOException
 import java.io.InputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 class FStorageUtil {
@@ -119,7 +121,18 @@ class FStorageUtil {
                     onResult(null, exception)
                 }
         }
-//data class Questionario(val id: String, val descricao: String, val perguntas: List<Pergunta>)
+        suspend fun getQuestionarioByIdSuspend(id: String): Questionario? = suspendCoroutine { continuation ->
+            getQuestionarioById(id) { questionario, _ ->
+                continuation.resume(questionario)
+            }
+        }
+
+        suspend fun getPerguntaByIdSuspend(id: String): Pergunta? = suspendCoroutine { continuation ->
+            getPerguntaById(id) { pergunta, _ ->
+                continuation.resume(pergunta)
+            }
+        }
+
         fun addQuestionarioToFirestore(onResult: (Throwable?) -> Unit, questionario: Questionario, viewModel: FirebaseViewModel) {
             val db = Firebase.firestore
 

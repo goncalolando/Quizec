@@ -1,5 +1,6 @@
 package pt.isec.marco.firebase.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -11,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.DialogHost
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import pt.isec.marco.firebase.ui.viewmodels.Questionario
@@ -24,32 +26,27 @@ fun HistoricoQuestionarioScreen(
 ) {
     val questionarioIds = viewModel.questionarios.value
     var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
-    val perguntasIds = viewModel.perguntas.value
     var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
+
     LaunchedEffect(questionarioIds) {
         questionarios = mutableListOf()
 
-        questionarioIds.forEach { questionarioId ->
-            FStorageUtil.getQuestionarioById(questionarioId) { questionario, _ ->
-                if (questionario != null) {
-                    questionarios = questionarios + questionario
-                }
-            }
+        // Carregar questionários
+        questionarios = questionarioIds.mapNotNull { questionarioId ->
+            FStorageUtil.getQuestionarioByIdSuspend(questionarioId)
         }
+
+        // Carregar perguntas apenas se houver questionários
         if (questionarios.isNotEmpty()) {
-            questionarios.forEach { questionario ->
-                questionario.perguntas.forEach { perguntaId ->
-                    FStorageUtil.getPerguntaById(perguntaId) { pergunta, _ ->
-                        if (pergunta != null) {
-                            perguntas = perguntas + pergunta
-                        }
-                    }
+            perguntas = questionarios.flatMap { questionario ->
+                questionario.perguntas.mapNotNull { perguntaId ->
+                    FStorageUtil.getPerguntaByIdSuspend(perguntaId)
                 }
             }
         }
     }
 
-    Column(Modifier.fillMaxSize()){
+    Column(Modifier.fillMaxSize()) {
         if (questionarios.isNotEmpty()) {
             questionarios.forEach { questionario ->
                 var answer by remember { mutableStateOf<ShowAnswer?>(null) }
