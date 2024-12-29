@@ -38,7 +38,7 @@ fun HistoricoQuestionarioScreen(
         }
         if (questionarios.isNotEmpty()) {
             questionarios.forEach { questionario ->
-                perguntasIds.forEach { perguntaId ->
+                questionario.perguntas.forEach { perguntaId ->
                     FStorageUtil.getPerguntaById(perguntaId) { pergunta, _ ->
                         if (pergunta != null) {
                             perguntas = perguntas + pergunta
