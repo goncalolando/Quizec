@@ -25,13 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.suspendCancellableCoroutine
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import pt.isec.marco.firebase.ui.viewmodels.Questionario
-import pt.isec.marco.firebase.utils.FStorageUtil
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import pt.isec.marco.firebase.utils.FStorageUtil.Companion.getPerguntaByIdSuspend
 
 @Composable
 fun CriarQuestionarioScreen(
@@ -110,12 +107,13 @@ fun CriarQuestionarioScreen(
                      viewModel.addQuestioanrioToFirestore(
                             Questionario(
                                 id = "",
+                                idUtilizador = viewModel.user.value?.email ?: "",
                                 descricao = "Questionáriofuncionado",
                                 perguntas = perguntasIds
                             )
                         )
-                     showSuccessMessage = true
                     viewModel.perguntas.value = emptyList()
+                    showSuccessMessage = true
                 },
                 onDismiss = { confirmaDialog = false }
             )
@@ -137,23 +135,12 @@ fun CriarQuestionarioScreen(
 suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
     val perguntas = mutableListOf<Pergunta>()
     for (perguntaId in perguntasIds) {
-        val pergunta = getPerguntaByIdSuspended(perguntaId)
+        val pergunta = getPerguntaByIdSuspend(perguntaId)
         if (pergunta != null) {
             perguntas.add(pergunta)
         }
     }
     return perguntas
-}
-suspend fun getPerguntaByIdSuspended(perguntaId: String): Pergunta? {
-    return suspendCancellableCoroutine { continuation ->
-        FStorageUtil.getPerguntaById(perguntaId) { pergunta, error ->
-            if (error != null) {
-                continuation.resumeWithException(error)
-            } else {
-                continuation.resume(pergunta)
-            }
-        }
-    }
 }
 
 @Composable

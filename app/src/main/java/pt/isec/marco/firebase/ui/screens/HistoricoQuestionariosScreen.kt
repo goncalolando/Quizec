@@ -25,18 +25,17 @@ fun HistoricoQuestionarioScreen(
     showComplete: Boolean = false,
 ) {
     val questionarioIds = viewModel.questionarios.value
-    var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
+    //var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
     var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
+    val questionarios by remember { viewModel.questionarios.collectAsState() }  // Observando a lista de perguntas
 
     LaunchedEffect(questionarioIds) {
         questionarios = mutableListOf()
 
-        // Carregar questionários
         questionarios = questionarioIds.mapNotNull { questionarioId ->
             FStorageUtil.getQuestionarioByIdSuspend(questionarioId)
         }
 
-        // Carregar perguntas apenas se houver questionários
         if (questionarios.isNotEmpty()) {
             perguntas = questionarios.flatMap { questionario ->
                 questionario.perguntas.mapNotNull { perguntaId ->
