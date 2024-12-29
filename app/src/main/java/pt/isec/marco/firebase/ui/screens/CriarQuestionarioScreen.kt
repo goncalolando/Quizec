@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import pt.isec.marco.firebase.ui.viewmodels.Questionario
@@ -107,9 +108,9 @@ fun CriarQuestionarioScreen(
                      viewModel.addQuestioanrioToFirestore(
                             Questionario(
                                 id = "",
-                                idUtilizador = viewModel.user.value?.email ?: "",
+                                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                                 descricao = "Questionáriofuncionado",
-                                perguntas = perguntasIds
+                                perguntas = perguntas
                             )
                         )
                     viewModel.perguntas.value = emptyList()

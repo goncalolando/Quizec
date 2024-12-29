@@ -1,12 +1,15 @@
 package pt.isec.marco.firebase.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import pt.isec.marco.firebase.utils.FAuthUtil
+import pt.isec.marco.firebase.utils.FAuthUtil.Companion.currentUser
 import pt.isec.marco.firebase.utils.FStorageUtil
 
 open class FirebaseViewModel : ViewModel() {
@@ -52,6 +55,14 @@ open class FirebaseViewModel : ViewModel() {
         _user.value = null
         _error.value = null
     }
+    private val _descricao = mutableStateOf("")
+    val descricao: State<String>
+        get() = _descricao
+
+    private val _perguntas = mutableStateOf(emptyList<Pergunta>())
+    val perguntass: State<List<Pergunta>>
+        get() = _perguntas
+
 
     private val _nrgames = mutableLongStateOf(0L)
     open val nrgames : State<Long>
@@ -101,15 +112,39 @@ open class FirebaseViewModel : ViewModel() {
             }
         }
     }
-
+    private val _questionariosAux = mutableStateOf<List<Questionario>>(emptyList()) // Lista de questionários
+    val questionariosAux: State<List<Questionario>> get() = _questionariosAux
     fun startObserver() {
-        viewModelScope.launch {
-            FStorageUtil.startObserver { g, t ->
-                _nrgames.longValue = g
-                _topscore.longValue = t
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            viewModelScope.launch {
+                // Chama o método de observação passando o userId
+                FStorageUtil.startObserver(userId) { questionarios, throwable ->
+                    if (throwable != null) {
+                        Log.e("Firestore", "Erro ao observar questionários: ${throwable.message}")
+                    } else {
+                        questionarios?.let {
+                            // Armazena todos os questionários que foram recuperados
+                            _questionariosAux.value = it // Atualiza a lista de questionários
+                        }
+                    }
+                }
             }
+        } else {
+            Log.e("Firestore", "Utilizador não autenticado")
         }
     }
+
+
+//    fun startObserver() {
+//        viewModelScope.launch {
+//            FStorageUtil.startObserver { g, t ->
+//                _nrgames.longValue = g
+//                _topscore.longValue = t
+//            }
+//        }
+//    }
+
 
     fun stopObserver() {
         viewModelScope.launch {

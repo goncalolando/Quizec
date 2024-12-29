@@ -2,6 +2,7 @@ package pt.isec.marco.firebase.utils
 
 import android.content.res.AssetManager
 import android.util.Log
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Source
@@ -121,6 +122,44 @@ class FStorageUtil {
                     onResult(null, exception)
                 }
         }
+        fun startObserver(userId: String, onNewValues: (List<Questionario>?, Throwable?) -> Unit) {
+            stopObserver()
+            val db = Firebase.firestore
+            listenerRegistration = db.collection("Questionarios")
+                .whereEqualTo("idUtilizador", userId) // Filtra pelo ID do utilizador logado
+                .addSnapshotListener { querySnapshot, e ->
+                    if (e != null) {
+                        onNewValues(null, e) // Passa o erro para o callback
+                        return@addSnapshotListener
+                    }
+
+                    if (querySnapshot != null && !querySnapshot.isEmpty) {
+                        val questionarios = querySnapshot.documents.mapNotNull { doc ->
+                            Questionario.fromFirestore(doc)
+                        }
+                        Log.i("Firestore", "$questionarios")
+                        onNewValues(questionarios, null) // Passa a lista filtrada para o callback
+                    } else {
+                        onNewValues(emptyList(), null) // Retorna uma lista vazia se não houver documentos
+                    }
+                }
+        }
+
+        //        fun startObserver(onNewValues:(Questionario?, Throwable?) -> Unit){
+//            stopObserver()
+//            val db = Firebase.firestore
+//            listenerRegistration = db.collection("Questionarios").document("Level1")
+//                .addSnapshotListener { docSS, e ->
+//                    if (e != null) {
+//                        return@addSnapshotListener
+//                    }
+//                    if (docSS != null && docSS.exists()) {
+//                        val questionario = Questionario.fromFirestore(docSS)
+//                        Log.i("Firestore", "$questionario")
+//                        onNewValues(questionario, null)
+//                    }
+//                }
+//        }
         suspend fun getQuestionarioByIdSuspend(id: String): Questionario? = suspendCoroutine { continuation ->
             getQuestionarioById(id) { questionario, _ ->
                 continuation.resume(questionario)
@@ -141,6 +180,7 @@ class FStorageUtil {
 
                 val questionarioHash = hashMapOf(
                     "id" to questionario.id,
+                    "idUtilizador" to questionario.idUtilizador,
                     "descricao" to questionario.descricao,
                     "perguntas" to questionario.perguntas,
 
@@ -213,22 +253,25 @@ class FStorageUtil {
 
         private var listenerRegistration: ListenerRegistration? = null
 
-        fun startObserver(onNewValues: (Long, Long) -> Unit) {
-            stopObserver()
-            val db = Firebase.firestore
-            listenerRegistration = db.collection("Scores").document("Level1")
-                .addSnapshotListener { docSS, e ->
-                    if (e != null) {
-                        return@addSnapshotListener
-                    }
-                    if (docSS != null && docSS.exists()) {
-                        val nrgames = docSS.getLong("nrgames") ?: 0
-                        val topscore = docSS.getLong("topscore") ?: 0
-                        Log.i("Firestore", "$nrgames : $topscore")
-                        onNewValues(nrgames, topscore)
-                    }
-                }
-        }
+
+
+//        fun startObserver(onNewValues: (Long, Long) -> Unit) {
+//            stopObserver()
+//            val db = Firebase.firestore
+//            listenerRegistration = db.collection("Scores").document("Level1")
+//                .addSnapshotListener { docSS, e ->
+//                    if (e != null) {
+//                        return@addSnapshotListener
+//                    }
+//                    if (docSS != null && docSS.exists()) {
+//                        val nrgames = docSS.getLong("nrgames") ?: 0
+//                        val topscore = docSS.getLong("topscore") ?: 0
+//                        Log.i("Firestore", "$nrgames : $topscore")
+//                        onNewValues(nrgames, topscore)
+//                    }
+//                }
+//        }
+
 
         fun stopObserver() {
             listenerRegistration?.remove()
