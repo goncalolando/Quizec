@@ -37,13 +37,13 @@ data class Pergunta(
         }
     }
 }
-data class Questionario(var id: String, val descricao: String, val perguntas: List<Pergunta>){
+data class Questionario(var id: String, val descricao: String, val perguntas: List<String>){
     companion object {
         fun fromFirestore(document: DocumentSnapshot): Questionario {
             return Questionario(
                 id = document.id,
                 descricao = document.getString("descricao") ?: "",
-                perguntas = document.get("perguntas") as? List<Pergunta> ?: listOf(),
+                perguntas = document.get("perguntas") as? List<String> ?: listOf(),
             )
         }
     }

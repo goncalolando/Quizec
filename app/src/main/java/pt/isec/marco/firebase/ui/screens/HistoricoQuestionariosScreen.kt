@@ -24,7 +24,8 @@ fun HistoricoQuestionarioScreen(
 ) {
     val questionarioIds = viewModel.questionarios.value
     var questionarios by remember { mutableStateOf<List<Questionario>>(emptyList()) }
-
+    val perguntasIds = viewModel.perguntas.value
+    var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
     LaunchedEffect(questionarioIds) {
         questionarios = mutableListOf()
 
@@ -32,6 +33,17 @@ fun HistoricoQuestionarioScreen(
             FStorageUtil.getQuestionarioById(questionarioId) { questionario, _ ->
                 if (questionario != null) {
                     questionarios = questionarios + questionario
+                }
+            }
+        }
+        if (questionarios.isNotEmpty()) {
+            questionarios.forEach { questionario ->
+                perguntasIds.forEach { perguntaId ->
+                    FStorageUtil.getPerguntaById(perguntaId) { pergunta, _ ->
+                        if (pergunta != null) {
+                            perguntas = perguntas + pergunta
+                        }
+                    }
                 }
             }
         }
@@ -43,7 +55,7 @@ fun HistoricoQuestionarioScreen(
                 var answer by remember { mutableStateOf<ShowAnswer?>(null) }
                 Text("Questionario1: ${questionario.descricao}")
                 Text("Questionario3: ${questionario.id}")
-                questionario.perguntas.forEach { pergunta ->
+                perguntas.forEach { pergunta ->
                     answer = when (pergunta.tipo) {
                         "P01" -> {
                             when (pergunta.respostaCerta.getOrNull(0)) {
@@ -58,12 +70,12 @@ fun HistoricoQuestionarioScreen(
                         }
                         else -> ShowAnswer.NotAnswered
                     }
+                    Text("Pergunta: ${pergunta.titulo}")
                     TipoPerguntaCard(
-                        pergunta,
+                        pergunta = pergunta,
                         showComplete = showComplete,
                         showAnswer = answer
                     )
-
                 }
             }
         }

@@ -111,7 +111,7 @@ fun CriarQuestionarioScreen(
                             Questionario(
                                 id = "",
                                 descricao = "Questionáriofuncionado",
-                                perguntas = perguntas
+                                perguntas = perguntasIds
                             )
                         )
                      showSuccessMessage = true
