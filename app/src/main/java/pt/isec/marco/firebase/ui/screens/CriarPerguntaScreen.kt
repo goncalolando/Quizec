@@ -1,5 +1,7 @@
 package pt.isec.marco.firebase.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -196,7 +199,6 @@ fun T06_PerguntaEspacos(
         modifier = Modifier.fillMaxWidth()
 
     ){
-
         Text("Solução:")
         OutlinedTextField(
             value = frase,
@@ -207,6 +209,7 @@ fun T06_PerguntaEspacos(
                 .padding(end = 8.dp)
         )
         val (newString, indices) = replaceMarkWithIndexedSpaces(frase)
+        onCountChange(indices.size)
         if(nomes.isNotEmpty()){
             T06_Opcoes(
                 indices.size,
@@ -221,7 +224,69 @@ fun T06_PerguntaEspacos(
 @Composable
 fun T07_PerguntasAssociacao(){}
 @Composable
-fun T08_PerguntaPalavras(){}
+fun T08_PerguntaPalavras(
+    selected: Int,
+    nrRespostas: Int,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit,
+    onCountChange: (Int) -> Unit,
+    onNrRespostasChange: (Int) -> Unit,
+    adicinaPalavra: () -> Unit,
+    removePalavra: () -> Unit
+){
+    Column(
+        modifier = Modifier.fillMaxWidth()
+
+    ){
+        Text("Número de palavras permitidas: $nrRespostas")
+
+        Slider(
+            value = nrRespostas.toFloat(),
+            onValueChange = { newValue ->
+                onNrRespostasChange(newValue.toInt().coerceAtMost(nomes.size))
+            },
+            valueRange = 1f..nomes.size.toFloat(),
+            steps = nomes.size - 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        )
+
+        if(nomes.isNotEmpty()){
+            Text("Respostas:")
+            T06_Opcoes(
+                nomes.size,
+                nomes,
+                isNomeInvalidList,
+                onNomeChange
+            )
+        }
+        Button(
+            onClick = {
+                adicinaPalavra()
+                onCountChange(selected +1)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ){
+            Text("Adicionar resposta")
+        }
+        Button(
+            onClick = {
+                removePalavra()
+                onCountChange(selected-1)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ){
+            Text("Remove resposta")
+        }
+
+    }
+}
 
 fun replaceMarkWithIndexedSpaces(inputString: String, mark: Char = '_'): Pair<String, List<Int>> {
     var counter = 1
@@ -448,6 +513,16 @@ fun T06_Opcoes(
 
 }
 
+@Composable
+fun T08_Opcoes(
+    countButton: Int,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit
+){
+
+}
+
 
 
 @Composable
@@ -477,6 +552,23 @@ fun CriarPerguntaScreen(
     // P06 ----------
     var frase by remember { mutableStateOf("") }
     var isFraseInvalid by remember { mutableStateOf(false) }
+    // P08 ---------
+    var palavras08 = remember { mutableStateListOf("") }
+    var isPalavras08Invalid = remember { mutableStateListOf(false) }
+    var nrRespostas08 by remember { mutableIntStateOf(1) }
+
+    fun adicinaPalavra() {
+        palavras08.add("")
+        isPalavras08Invalid.add(false)
+    }
+
+    fun removePalavra() {
+        if (palavras08.isNotEmpty()) {
+            val lastIndex = palavras08.size - 1
+            palavras08.removeAt(lastIndex)
+            isPalavras08Invalid.removeAt(lastIndex)
+        }
+    }
 
     fun validarP01(): Boolean {
         var isValid = true
@@ -593,6 +685,7 @@ fun CriarPerguntaScreen(
         for(i in 0 until nomes.size) {
             if (nomes[i].isEmpty()) {
                 isNomeInvalidList[i] = true
+                isValid = false
             } else {
                 isNomeInvalidList[i] = false
             }
@@ -602,6 +695,24 @@ fun CriarPerguntaScreen(
             isValid = false
         } else {
             isFraseInvalid = false
+        }
+        return isValid
+    }
+    fun validarP08(): Boolean {
+        var isValid = true
+        if (nome.isEmpty()) {
+            isNomeInvalid = true
+            isValid = false
+        } else {
+            isNomeInvalid = false
+        }
+        for(i in 0 until palavras08.size) {
+            if (palavras08[i] == "")  {
+                isPalavras08Invalid[i] = true
+                isValid = false
+            } else {
+                isPalavras08Invalid[i] = false
+            }
         }
         return isValid
     }
@@ -713,7 +824,24 @@ fun CriarPerguntaScreen(
                     T07_PerguntasAssociacao()
                 }
                 7 -> {
-                    T08_PerguntaPalavras()
+                    T08_PerguntaPalavras(
+                        selected = countButton,
+                        nrRespostas = nrRespostas08,
+                        nomes = palavras08,
+                        isNomeInvalidList = isPalavras08Invalid,
+                        onNomeChange = { index, novoValor ->
+                            palavras08[index] = novoValor
+                            isNomeInvalidList[index] = false
+                        },
+                        onCountChange = { novoValor -> countButton = novoValor },
+                        onNrRespostasChange = {novoValor -> nrRespostas08 = novoValor},
+                        adicinaPalavra = {
+                            adicinaPalavra()
+                        },
+                        removePalavra = {
+                            removePalavra()
+                        }
+                    )
                 }
                 else -> {
                     Text("Tipo de pergunta desconhecido")
@@ -794,7 +922,7 @@ fun CriarPerguntaScreen(
                             tipo = "P04"
                         )
                     }
-                    4->{
+                    4 -> {
                         isEntradaValida = validarP05()
                         pergunta = Pergunta(
                             id = "",
@@ -818,7 +946,18 @@ fun CriarPerguntaScreen(
                             respostaCerta = nomes,
                             tipo = "P06"
                         )
-
+                    }
+                    7 -> {
+                        isEntradaValida = validarP08()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = "123",
+                            respostas = listOf(nrRespostas08.toString()),
+                            respostaCerta = palavras08,
+                            tipo = "P08"
+                        )
                     }
                 }
 

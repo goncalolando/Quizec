@@ -147,8 +147,8 @@ fun TipoPerguntaCard(
             "P04" -> PerguntaCorrespondecia(pergunta,showComplete,answer)
             "P05" -> PerguntaOrdenacao(pergunta,showComplete,answer)
             "P06" -> PerguntaEspacosEmBranco(pergunta,showComplete,answer)
-//            "P07" -> PerguntaEspacosEmBranco(pergunta)
-//            "P08" -> PerguntaEspacosEmBranco(pergunta)
+            "P07" -> PerguntaAssociacao(pergunta,showComplete,answer)
+            "P08" -> PerguntaPalavras(pergunta,showComplete,answer)
             else -> {
                 Text("Tipo de pergunta desconhecido")
             }
@@ -459,7 +459,7 @@ fun PerguntaOrdenacao(
         is ShowAnswer.ListAnswer -> showAnswer.value
         else ->  List(pergunta.respostas.size) { "" }
     }
-    Text(stringResource(R.string.P04_name))
+    Text(stringResource(R.string.P05_name))
     Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
     Spacer(modifier = Modifier.height(16.dp))
@@ -594,6 +594,29 @@ fun PerguntaEspacosEmBranco(
             )
         }
     }
+}
+
+@Composable
+fun PerguntaAssociacao(
+    pergunta: Pergunta,
+    showComplete: Boolean = false,
+    showAnswer: ShowAnswer?
+){
+    Text(stringResource(R.string.P07_name))
+    Spacer(modifier = Modifier.height(16.dp))
+    Text("Pergunta: ${pergunta.titulo}")
+}
+
+@Composable
+fun PerguntaPalavras(
+    pergunta: Pergunta,
+    showComplete: Boolean = false,
+    showAnswer: ShowAnswer?
+){
+    Text(stringResource(R.string.P08_name))
+    Spacer(modifier = Modifier.height(16.dp))
+    Text("Pergunta: ${pergunta.titulo}")
+
 }
 
 
@@ -745,4 +768,4 @@ fun PerguntaEspacosEmBranco(
     }
 
 // TODO FINAL
-// trocar o answers para dentro do composable
+// P06, equacao
