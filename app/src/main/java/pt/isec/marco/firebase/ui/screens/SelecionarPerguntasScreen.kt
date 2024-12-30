@@ -21,38 +21,16 @@ fun SelecionarPerguntasScreen(
     navController: NavHostController,
     showComplete: Boolean = false,
 ) {
-    // Obtém diretamente a lista de perguntas do ViewModel
     val perguntas by remember { viewModel.perguntasAux }
 
     LaunchedEffect(Unit) {
         viewModel.startPerguntasObserver()
     }
-
     if (perguntas.isEmpty()) {
         Text("Nenhuma pergunta disponível")
     } else {
         LazyColumn {
             items(perguntas) { pergunta ->
-                var answer by remember { mutableStateOf<ShowAnswer?>(null) }
-
-                // Lógica para determinar a resposta correta com base no tipo
-                answer = when (pergunta.tipo) {
-                    "P01" -> {
-                        when (pergunta.respostaCerta.getOrNull(0)) {
-                            "true" -> ShowAnswer.BooleanAnswer(true)
-                            "false" -> ShowAnswer.BooleanAnswer(false)
-                            else -> ShowAnswer.NotAnswered
-                        }
-                    }
-
-                    "P02" -> {
-                        val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
-                        ShowAnswer.IntAnswer(respostaIndex)
-                    }
-
-                    else -> ShowAnswer.NotAnswered
-                }
-
                 Column {
                     Text("Pergunta: ${pergunta.titulo}")
                     TipoPerguntaCard(
