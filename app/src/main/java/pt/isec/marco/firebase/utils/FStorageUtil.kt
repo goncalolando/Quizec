@@ -10,6 +10,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
+import pt.isec.marco.firebase.ui.viewmodels.Partilha
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import pt.isec.marco.firebase.ui.viewmodels.Questionario
 import java.io.IOException
@@ -86,6 +87,34 @@ class FStorageUtil {
                     }
             }
         }
+
+        fun addPartilhaToFirestore(onResult: (Throwable?) -> Unit, partilha: Partilha, viewModel: FirebaseViewModel) {
+            val db = Firebase.firestore
+
+            geraUnico { uniqueId ->
+                partilha.id = uniqueId
+
+                val partilhaHash = hashMapOf(
+                    "id" to partilha.id,
+                    "user" to partilha.idUtilizador,
+                    "tempoEspera" to partilha.tempoEspera,
+                    "tempoResolucao" to partilha.tempoResolucao,
+                )
+
+                db.collection("Partilhas")
+                    .document("partilha${partilha.id}")
+                    .set(partilhaHash)
+                    .addOnCompleteListener { result ->
+                        if (result.isSuccessful) {
+                            onResult(null)
+                            viewModel.partilhas.value += partilha.id
+                        } else {
+                            onResult(result.exception)
+                        }
+                    }
+            }
+        }
+
         fun getPerguntaById(id: String, onResult: (Pergunta?, Throwable?) -> Unit) {
             val db = Firebase.firestore
 

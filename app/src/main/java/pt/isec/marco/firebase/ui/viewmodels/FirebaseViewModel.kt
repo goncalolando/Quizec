@@ -13,6 +13,7 @@ import pt.isec.marco.firebase.utils.FAuthUtil.Companion.currentUser
 import pt.isec.marco.firebase.utils.FStorageUtil
 
 open class FirebaseViewModel : ViewModel() {
+    val partilhas = mutableStateOf(listOf<String>())
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val perguntas = mutableStateOf(listOf<String>())
     val questionarios = mutableStateOf(listOf<String>())
@@ -93,6 +94,14 @@ open class FirebaseViewModel : ViewModel() {
             FStorageUtil.addQuestionarioToFirestore({ exception ->
                 _error.value = exception?.message
             }, questionario, this@FirebaseViewModel)
+        }
+    }
+
+    fun addPartilhaToFirestore(partilha: Partilha) {
+        viewModelScope.launch {
+            FStorageUtil.addPartilhaToFirestore({ exception ->
+                _error.value = exception?.message
+            }, partilha, this@FirebaseViewModel)
         }
     }
 
