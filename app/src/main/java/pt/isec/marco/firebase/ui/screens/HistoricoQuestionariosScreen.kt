@@ -56,8 +56,7 @@ fun HistoricoQuestionarioScreen(
                     Text("Pergunta: ${pergunta.titulo}")
                     TipoPerguntaCard(
                         pergunta = pergunta,
-                        showComplete = showComplete,
-                        showAnswer = answer
+                        showComplete = showComplete
                     )
                 }
             }

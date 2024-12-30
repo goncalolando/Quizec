@@ -38,49 +38,9 @@ fun VerQuestionarioScreen(
     Column(Modifier.fillMaxSize()) {
         if (perguntas.isNotEmpty()) {
             perguntas.forEach { pergunta ->
-                var answer by remember { mutableStateOf<ShowAnswer?>(null) }
-
-                answer = when (pergunta.tipo) {
-                    "P01" -> {
-                        when (pergunta.respostaCerta.getOrNull(0)) {
-                            "true" -> ShowAnswer.BooleanAnswer(true)
-                            "false" -> ShowAnswer.BooleanAnswer(false)
-                            else -> ShowAnswer.NotAnswered
-                        }
-                    }
-                    "P02" -> {
-                        val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
-                        ShowAnswer.IntAnswer(respostaIndex)
-                    }
-                    "P03" -> {
-                       val respostaIndex = pergunta.respostaCerta.mapNotNull { it.toIntOrNull() }
-                        ShowAnswer.ListAnswer(respostaIndex)
-                    }
-                    "P04" -> {
-                        val respostaIndex = List(pergunta.respostas.size/2) {-1}.toMutableList()
-                        for(i in 0 until pergunta.respostaCerta.size/2){
-                            val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
-                            val index2 = pergunta.respostas.indexOf(pergunta.respostaCerta[index+pergunta.respostas.size/2])
-                            respostaIndex[i] = index2 - pergunta.respostas.size/2 + 1
-                        }
-                        ShowAnswer.ListAnswer(respostaIndex)
-                    }
-                    "P05" -> {
-                        val respostaIndex = List(pergunta.respostas.size) {-1}.toMutableList()
-                        for(i in 0 until pergunta.respostaCerta.size) {
-                            val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
-                            respostaIndex[index] = i + 1
-                        }
-                        ShowAnswer.ListAnswer(respostaIndex)
-                    }
-
-                    else -> ShowAnswer.NotAnswered
-                }
-
                 TipoPerguntaCard(
                     pergunta = pergunta,
-                    showComplete = showComplete,
-                    showAnswer = answer
+                    showComplete = showComplete
                 )
             }
         }

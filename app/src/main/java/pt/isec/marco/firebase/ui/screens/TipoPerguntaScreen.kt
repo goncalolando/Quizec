@@ -36,6 +36,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,6 +62,7 @@ sealed class ShowAnswer {
     data class BooleanAnswer(val value: Boolean) : ShowAnswer()
     data class IntAnswer(val value: Int?) : ShowAnswer()
     data class ListAnswer(val value: List<Int>) : ShowAnswer()
+    data class StringAnswer(val value: String?) : ShowAnswer()
 }
 
 
@@ -67,8 +70,66 @@ sealed class ShowAnswer {
 fun TipoPerguntaCard(
     pergunta: Pergunta,
     showComplete: Boolean,
-    showAnswer: ShowAnswer?
 ) {
+    var answer by remember { mutableStateOf<ShowAnswer?>(null) }
+
+    answer = when (pergunta.tipo) {
+        "P01" -> {
+            when (pergunta.respostaCerta.getOrNull(0)) {
+                "true" -> ShowAnswer.BooleanAnswer(true)
+                "false" -> ShowAnswer.BooleanAnswer(false)
+                else -> ShowAnswer.NotAnswered
+            }
+        }
+        "P02" -> {
+            val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
+            ShowAnswer.IntAnswer(respostaIndex)
+        }
+        "P03" -> {
+            val respostaIndex = pergunta.respostaCerta.mapNotNull { it.toIntOrNull() }
+            ShowAnswer.ListAnswer(respostaIndex)
+        }
+        "P04" -> {
+            val respostaIndex = List(pergunta.respostas.size/2) {-1}.toMutableList()
+            for(i in 0 until pergunta.respostaCerta.size/2){
+                val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
+                val index2 = pergunta.respostas.indexOf(pergunta.respostaCerta[index+pergunta.respostas.size/2])
+                respostaIndex[i] = index2 - pergunta.respostas.size/2 + 1
+            }
+            ShowAnswer.ListAnswer(respostaIndex)
+        }
+        "P05" -> {
+            val respostaIndex = List(pergunta.respostas.size) {-1}.toMutableList()
+            for(i in 0 until pergunta.respostaCerta.size) {
+                val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
+                respostaIndex[index] = i + 1
+            }
+            ShowAnswer.ListAnswer(respostaIndex)
+        }
+        "P06" -> {
+            val frase = pergunta.respostas.getOrNull(0)
+            var i = 1  // Para numerar os elementos da lista
+            val result = StringBuilder()  // Para construir a string de resultado
+
+            var j = 0
+
+            if (frase != null) {
+                for (char in frase) {
+                    if (char == '_' && j < pergunta.respostaCerta.size) {
+                        result.append("[$i. \"${pergunta.respostaCerta[j]}\"]")
+                        i++
+                        j++
+                    } else {
+
+                        result.append(char)
+                    }
+                }
+            }
+            ShowAnswer.StringAnswer(result.toString())
+        }
+
+        else -> ShowAnswer.NotAnswered
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,14 +140,14 @@ fun TipoPerguntaCard(
         )
     ) {
         when(pergunta.tipo){
-            "P01" -> PerguntaVF(pergunta, showComplete,showAnswer)
-            "P02" -> PerguntaEM(pergunta, showComplete,showAnswer,false)
-            "P03" -> PerguntaEM(pergunta, showComplete,showAnswer,true)
-            "P04" -> PerguntaCorrespondecia(pergunta,showComplete,showAnswer)
-            "P05" -> PerguntaOrdenacao(pergunta,showComplete,showAnswer)
-            "P06" -> PerguntaEspacosEmBranco(pergunta)
-            "P07" -> PerguntaEspacosEmBranco(pergunta)
-            "P08" -> PerguntaEspacosEmBranco(pergunta)
+            "P01" -> PerguntaVF(pergunta, showComplete,answer)
+            "P02" -> PerguntaEM(pergunta, showComplete,answer,false)
+            "P03" -> PerguntaEM(pergunta, showComplete,answer,true)
+            "P04" -> PerguntaCorrespondecia(pergunta,showComplete,answer)
+            "P05" -> PerguntaOrdenacao(pergunta,showComplete,answer)
+            "P06" -> PerguntaEspacosEmBranco(pergunta,showComplete,answer)
+//            "P07" -> PerguntaEspacosEmBranco(pergunta)
+//            "P08" -> PerguntaEspacosEmBranco(pergunta)
             else -> {
                 Text("Tipo de pergunta desconhecido")
             }
@@ -105,6 +166,7 @@ fun PerguntaVF(
         else -> null
     }
     Text(stringResource(R.string.P01_name))
+    Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
     if(showComplete){
         Spacer(modifier = Modifier.height(16.dp))
@@ -242,6 +304,7 @@ fun PerguntaCorrespondecia(
         else ->  List(pergunta.respostas.size) { "" }
     }
     Text(stringResource(R.string.P04_name))
+    Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
     Spacer(modifier = Modifier.height(16.dp))
     if (showComplete) {
@@ -396,6 +459,7 @@ fun PerguntaOrdenacao(
         else ->  List(pergunta.respostas.size) { "" }
     }
     Text(stringResource(R.string.P04_name))
+    Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
     Spacer(modifier = Modifier.height(16.dp))
     if (showComplete) {
@@ -495,17 +559,42 @@ fun PerguntaOrdenacao(
             }
         }
 
-
-
 @Composable
 fun PerguntaEspacosEmBranco(
     pergunta: Pergunta,
-    modifier: Modifier = Modifier
+    showComplete: Boolean = false,
+    showAnswer: ShowAnswer?,
 ) {
-        Text(stringResource(R.string.P06_name))
-        Text("Pergunta: ${pergunta.titulo}")
-        Spacer(modifier = Modifier.height(16.dp))
+    val selectedAnswerString = when (showAnswer) {
+        is ShowAnswer.StringAnswer -> showAnswer.value
+        else ->  ""
     }
+    Text(stringResource(R.string.P06_name))
+    Spacer(modifier = Modifier.height(16.dp))
+    Text("Pergunta: ${pergunta.titulo}")
+    Spacer(modifier = Modifier.height(16.dp))
+
+
+
+    if (showComplete) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize()
+        ){
+            if (selectedAnswerString != null) {
+                Text(selectedAnswerString)
+            }
+            T06_Opcoes(
+                pergunta.respostaCerta.size,
+                pergunta.respostaCerta,
+                isNomeInvalidList = List(pergunta.respostaCerta.size) { false },
+                onNomeChange = { _, _ -> }
+            )
+        }
+    }
+}
+
 
 
 @Composable
@@ -528,7 +617,7 @@ fun PerguntaEspacosEmBranco(
                 titulo = "Qual é a capital da França?",
                 imagem = "imagem_pergunta2",
                 respostas = listOf("Londres", "Berlim", "Paris", "Madrid"),
-                respostaCerta = listOf("Paris"),
+                respostaCerta = listOf("2"),
                 tipo = "P02"
             ),
             Pergunta(
@@ -536,7 +625,7 @@ fun PerguntaEspacosEmBranco(
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico"),
-                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                respostaCerta = listOf("2", "3"),
                 tipo = "P03"
             ),
             Pergunta(
@@ -544,7 +633,7 @@ fun PerguntaEspacosEmBranco(
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
-                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
                 tipo = "P04"
             ),
             Pergunta(
@@ -559,8 +648,8 @@ fun PerguntaEspacosEmBranco(
                 id = "Q3",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
-                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
-                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                respostas = listOf("Estou na _ e vou para _ "),
+                respostaCerta = listOf("Ásia", "Europa"),
                 tipo = "P06"
             ),
             Pergunta(
@@ -604,7 +693,7 @@ fun PerguntaEspacosEmBranco(
                         .padding(2.dp)
                 ) {
                     TipoPerguntaCard(
-                        pergunta, true, null
+                        pergunta, true
                     )
                 }
             }

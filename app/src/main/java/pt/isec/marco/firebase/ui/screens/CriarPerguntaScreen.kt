@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -25,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
@@ -183,11 +181,62 @@ fun T05_PerguntaOrdenacao(
 }
 
 @Composable
-fun T06_PerguntaEspacos(){}
+fun T06_PerguntaEspacos(
+    selected: Int,
+    nomes: List<String>,
+    frase: String,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit,
+    onCountChange: (Int) -> Unit,
+    onFraseChange: (String) -> Unit,
+    isFraseInvalid: Boolean
+){
+    Column(
+        modifier = Modifier.fillMaxWidth()
+
+    ){
+
+        Text("Solução:")
+        OutlinedTextField(
+            value = frase,
+            onValueChange = { newText -> onFraseChange(newText) },
+            label = { Text("Digite uma frase: ") },
+            isError = isFraseInvalid,
+            modifier = Modifier
+                .padding(end = 8.dp)
+        )
+        val (newString, indices) = replaceMarkWithIndexedSpaces(frase)
+        if(nomes.isNotEmpty()){
+            T06_Opcoes(
+                indices.size,
+                nomes,
+                isNomeInvalidList,
+                onNomeChange
+            )
+        }
+    }
+
+}
 @Composable
 fun T07_PerguntasAssociacao(){}
 @Composable
 fun T08_PerguntaPalavras(){}
+
+fun replaceMarkWithIndexedSpaces(inputString: String, mark: Char = '_'): Pair<String, List<Int>> {
+    var counter = 1
+    val indices = mutableListOf<Int>()
+
+    val resultString = inputString.map { char ->
+        if (char == mark) {
+            indices.add(counter)
+            "( $counter )".also { counter++ }
+        } else {
+            char.toString()
+        }
+    }.joinToString("")
+
+    return Pair(resultString, indices)
+}
 
 @Composable
 fun BotoesLista(
@@ -233,7 +282,6 @@ fun OutlinedTextField(
         modifier = Modifier
             .fillMaxWidth()
     )
-
 }
 
 @Composable
@@ -368,6 +416,37 @@ fun T05_Opcoes(
     }
 }
 
+@Composable
+fun T06_Opcoes(
+    countButton: Int,
+    nomes: List<String>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit
+){
+    Column {
+        for (i in 0 until countButton step 3) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                for (j in 0 until 3) {
+                    if (i + j < countButton) {
+                        OutlinedTextField(
+                            value = nomes.getOrElse(i + j) { "" },
+                            onValueChange = { newText -> onNomeChange(i + j, newText) },
+                            label = { Text("${i + j + 1}. ") },
+                            isError = isNomeInvalidList.getOrElse(i + j) { false },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = if (j < 2) 8.dp else 0.dp)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+
+
+}
+
 
 
 @Composable
@@ -394,6 +473,9 @@ fun CriarPerguntaScreen(
     val isNomeInvalidList04 = remember(countButton) { mutableStateListOf(*Array(countButton*2) { false }) }
     val errorMessage by viewModel.error
     var isEntradaValida by remember { mutableStateOf(false) }
+    // P06 ----------
+    var frase by remember { mutableStateOf("") }
+    var isFraseInvalid by remember { mutableStateOf(false) }
 
     fun validarP01(): Boolean {
         var isValid = true
@@ -499,6 +581,29 @@ fun CriarPerguntaScreen(
         }
         return isValid
     }
+    fun validarP06(): Boolean{
+        var isValid = true
+        if (nome.isEmpty()) {
+            isNomeInvalid = true
+            isValid = false
+        } else {
+            isNomeInvalid = false
+        }
+        for(i in 0 until nomes.size) {
+            if (nomes[i].isEmpty()) {
+                isNomeInvalidList[i] = true
+            } else {
+                isNomeInvalidList[i] = false
+            }
+        }
+        if (frase.isEmpty()) {
+            isFraseInvalid = true
+            isValid = false
+        } else {
+            isFraseInvalid = false
+        }
+        return isValid
+    }
 
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -586,7 +691,22 @@ fun CriarPerguntaScreen(
                     )
                 }
                 5 -> {
-                    T06_PerguntaEspacos()
+                    T06_PerguntaEspacos(
+                        selected = countButton,
+                        nomes = nomes,
+                        frase = frase,
+                        isNomeInvalidList = isNomeInvalidList,
+                        isFraseInvalid = isFraseInvalid,
+                        onNomeChange = { index, novoValor ->
+                            nomes[index] = novoValor
+                            isNomeInvalidList[index] = false
+                        },
+                        onCountChange = { novoValor -> countButton = novoValor },
+                        onFraseChange = {
+                            frase = it
+                            isFraseInvalid = false
+                        }
+                    )
                 }
                 6 -> {
                     T07_PerguntasAssociacao()
@@ -675,6 +795,18 @@ fun CriarPerguntaScreen(
                             respostas = nomes.shuffled(),
                             respostaCerta = nomes,
                             tipo = "P05"
+                        )
+
+                    }
+                    5 -> {
+                        isEntradaValida = validarP06()
+                        pergunta = Pergunta(
+                            id = "",
+                            titulo = nome,
+                            imagem = "123",
+                            respostas = listOf(frase),
+                            respostaCerta = nomes,
+                            tipo = "P06"
                         )
 
                     }
