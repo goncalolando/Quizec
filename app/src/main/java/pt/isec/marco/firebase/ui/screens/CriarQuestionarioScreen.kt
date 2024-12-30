@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +37,9 @@ fun CriarQuestionarioScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController
 ) {
+    var confirmaDialog by remember { mutableStateOf(false) }
+    var mostraMsgSucesso by remember { mutableStateOf(false) }
+    var nomeQuestionario by remember { mutableStateOf("") } // Variável para armazenar o nome do questionário
 
     Box(
         modifier = Modifier
@@ -49,7 +53,6 @@ fun CriarQuestionarioScreen(
             Text("User: ${viewModel.user.value?.email ?: ""}")
             repeat(viewModel.perguntas.value.size) { iteration ->
                 val pergunta = viewModel.perguntas.value[iteration]
-
             }
         }
         Column(
@@ -59,7 +62,7 @@ fun CriarQuestionarioScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Questionario")
+            Text("Questionário")
             Button(
                 onClick = {
                     navController.navigate("tipo-pergunta") {
@@ -83,72 +86,73 @@ fun CriarQuestionarioScreen(
                     navController.navigate("ver-questionario") {
                         popUpTo("ver-questionario") { inclusive = true }
                     }
-                },
+                }
             ) {
-                Text("Ver questionario")
+                Text("Ver questionário")
             }
         }
-        var confirmaDialog by remember { mutableStateOf(false) }
-        var showSuccessMessage by remember { mutableStateOf(false) }
-
-        Button(
-                onClick = { confirmaDialog = true },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = { confirmaDialog = true }
+            ) {
                 Text("Terminar Questionário")
             }
-        if (confirmaDialog) {
-            val perguntasIds = viewModel.perguntas.value
-            var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
-            LaunchedEffect(perguntasIds) {
-                perguntas = getPerguntasByIds(perguntasIds)}
-            ConfirmaDialog(
-                onConfirm = {
-                    confirmaDialog = false
-                     viewModel.addQuestioanrioToFirestore(
-                            Questionario(
-                                id = "",
-                                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                                descricao = "Questionáriofuncionado",
-                                perguntas = perguntas
-                            )
-                        )
-                    viewModel.perguntas.value = emptyList()
-                    showSuccessMessage = true
-                },
-                onDismiss = { confirmaDialog = false }
-            )
-        }
-
-        if (showSuccessMessage) {
-            SuccessMessageDialog(
-                message = "Questionário criado com sucesso!",
-                onDismiss = {
-                    showSuccessMessage = false
-                    navController.navigate("menu-criador") {
-                        popUpTo("menu-criador") { inclusive = true }
-                    }}
-            )
-        }
         }
     }
 
-suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
-    val perguntas = mutableListOf<Pergunta>()
-    for (perguntaId in perguntasIds) {
-        val pergunta = getPerguntaByIdSuspend(perguntaId)
-        if (pergunta != null) {
-            perguntas.add(pergunta)
+    if (confirmaDialog) {
+        val perguntasIds = viewModel.perguntas.value
+        var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }
+        LaunchedEffect(perguntasIds) {
+            perguntas = getPerguntasByIds(perguntasIds)
         }
+
+        GuardaQuestionario (
+            onConfirm = {
+                confirmaDialog = false
+                viewModel.addQuestioanrioToFirestore(
+                    Questionario(
+                        id = "",
+                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                        descricao = nomeQuestionario,
+                        perguntas = perguntas
+                    )
+                )
+                viewModel.perguntas.value = emptyList()
+                mostraMsgSucesso = true
+            },
+            onDismiss = { confirmaDialog = false },
+            nomeQuestionario = nomeQuestionario,
+            onNomeChange = { nomeQuestionario = it }
+        )
     }
-    return perguntas
+
+    if (mostraMsgSucesso) {
+        MsgSucesso (
+            message = "Questionário criado com sucesso!",
+            onDismiss = {
+                mostraMsgSucesso = false
+                navController.navigate("menu-criador") {
+                    popUpTo("menu-criador") { inclusive = true }
+                }
+            }
+        )
+    }
 }
 
 @Composable
-    fun ConfirmaDialog(
-        onConfirm: () -> Unit,
-        onDismiss: () -> Unit
-    ) {
+fun GuardaQuestionario(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    nomeQuestionario: String,
+    onNomeChange: (String) -> Unit
+) {
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
@@ -161,17 +165,21 @@ suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Confirmar",
+                    text = "Guardar Questionário",
                     fontSize = 20.sp,
                     color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Tem a certeza de que deseja terminar o questionário?",
+                    text = "De um nome ao seu questionário:",
                     fontSize = 16.sp,
                     color = Color.Gray
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = nomeQuestionario,
+                    onValueChange = { onNomeChange(it) },
+                    placeholder = { Text("Escreve aqui...") }
+                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxWidth(),
@@ -188,8 +196,9 @@ suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
     }
 }
 
+
 @Composable
-fun SuccessMessageDialog(message: String, onDismiss: () -> Unit) {
+fun MsgSucesso(message: String, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
@@ -219,4 +228,14 @@ fun SuccessMessageDialog(message: String, onDismiss: () -> Unit) {
             }
         }
     }
+}
+suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
+    val perguntas = mutableListOf<Pergunta>()
+    for (perguntaId in perguntasIds) {
+        val pergunta = getPerguntaByIdSuspend(perguntaId)
+        if (pergunta != null) {
+            perguntas.add(pergunta)
+        }
+    }
+    return perguntas
 }

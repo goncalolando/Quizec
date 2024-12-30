@@ -60,7 +60,7 @@ fun MainScreen(
                 },
                 actions = {
                     when(currentScreen?.destination?.route){
-                        "ver-questionario" ->{
+                        "ver-questionario" ,"historico-questionarios" , "seleciona-perguntas" ->{
                             IconButton(
                                 onClick = {
                                     showComplete = !showComplete
@@ -188,6 +188,7 @@ fun MainScreen(
                         viewModel = viewModel,
                         navController = navController
                     )
+
                 }
             }
             composable(route = "tipo-pergunta") {
@@ -250,7 +251,8 @@ fun MainScreen(
                 ){
                     SelecionarPerguntasScreen(
                         viewModel = viewModel,
-                        navController = navController
+                        navController = navController,
+                        showComplete = showComplete
                     )
                 }
             }

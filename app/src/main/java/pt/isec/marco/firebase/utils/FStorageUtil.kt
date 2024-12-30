@@ -66,6 +66,7 @@ class FStorageUtil {
 
                 val perguntaHash = hashMapOf(
                     "id" to pergunta.id,
+                    "idUtilizador" to pergunta.idUtilizador,
                     "titulo" to pergunta.titulo,
                     "imagem" to pergunta.imagem,
                     "respostas" to pergunta.respostas,
@@ -122,7 +123,7 @@ class FStorageUtil {
                     onResult(null, exception)
                 }
         }
-        fun startObserver(userId: String, onNewValues: (List<Questionario>?, Throwable?) -> Unit) {
+        fun startQuestionariosObserver(userId: String, onNewValues: (List<Questionario>?, Throwable?) -> Unit) {
             stopObserver()
             val db = Firebase.firestore
             listenerRegistration = db.collection("Questionarios")
@@ -144,22 +145,28 @@ class FStorageUtil {
                     }
                 }
         }
+        fun startPerguntasObserver(userId: String, onNewValues: (List<Pergunta>?, Throwable?) -> Unit) {
+            stopObserver()
+            val db = Firebase.firestore
+            listenerRegistration = db.collection("Perguntas")
+                .whereEqualTo("idUtilizador", userId)
+                .addSnapshotListener { querySnapshot, e ->
+                    if (e != null) {
+                        onNewValues(null, e)
+                        return@addSnapshotListener
+                    }
 
-        //        fun startObserver(onNewValues:(Questionario?, Throwable?) -> Unit){
-//            stopObserver()
-//            val db = Firebase.firestore
-//            listenerRegistration = db.collection("Questionarios").document("Level1")
-//                .addSnapshotListener { docSS, e ->
-//                    if (e != null) {
-//                        return@addSnapshotListener
-//                    }
-//                    if (docSS != null && docSS.exists()) {
-//                        val questionario = Questionario.fromFirestore(docSS)
-//                        Log.i("Firestore", "$questionario")
-//                        onNewValues(questionario, null)
-//                    }
-//                }
-//        }
+                    if (querySnapshot != null && !querySnapshot.isEmpty) {
+                        val perguntas = querySnapshot.documents.mapNotNull { doc ->
+                            Pergunta.fromFirestore(doc)
+                        }
+                        Log.i("Firestore", "$perguntas")
+                        onNewValues(perguntas, null)
+                    } else {
+                        onNewValues(emptyList(), null)
+                    }
+                }
+        }
         suspend fun getQuestionarioByIdSuspend(id: String): Questionario? = suspendCoroutine { continuation ->
             getQuestionarioById(id) { questionario, _ ->
                 continuation.resume(questionario)
@@ -255,22 +262,22 @@ class FStorageUtil {
 
 
 
-//        fun startObserver(onNewValues: (Long, Long) -> Unit) {
-//            stopObserver()
-//            val db = Firebase.firestore
-//            listenerRegistration = db.collection("Scores").document("Level1")
-//                .addSnapshotListener { docSS, e ->
-//                    if (e != null) {
-//                        return@addSnapshotListener
-//                    }
-//                    if (docSS != null && docSS.exists()) {
-//                        val nrgames = docSS.getLong("nrgames") ?: 0
-//                        val topscore = docSS.getLong("topscore") ?: 0
-//                        Log.i("Firestore", "$nrgames : $topscore")
-//                        onNewValues(nrgames, topscore)
-//                    }
-//                }
-//        }
+        fun startObserver(onNewValues: (Long, Long) -> Unit) {
+            stopObserver()
+            val db = Firebase.firestore
+            listenerRegistration = db.collection("Scores").document("Level1")
+                .addSnapshotListener { docSS, e ->
+                    if (e != null) {
+                        return@addSnapshotListener
+                    }
+                    if (docSS != null && docSS.exists()) {
+                        val nrgames = docSS.getLong("nrgames") ?: 0
+                        val topscore = docSS.getLong("topscore") ?: 0
+                        Log.i("Firestore", "$nrgames : $topscore")
+                        onNewValues(nrgames, topscore)
+                    }
+                }
+        }
 
 
         fun stopObserver() {

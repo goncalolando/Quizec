@@ -112,20 +112,38 @@ open class FirebaseViewModel : ViewModel() {
             }
         }
     }
-    private val _questionariosAux = mutableStateOf<List<Questionario>>(emptyList()) // Lista de questionários
+    private val _questionariosAux = mutableStateOf<List<Questionario>>(emptyList())
     val questionariosAux: State<List<Questionario>> get() = _questionariosAux
-    fun startObserver() {
+    fun startQuestionariosObserver() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
             viewModelScope.launch {
-                // Chama o método de observação passando o userId
-                FStorageUtil.startObserver(userId) { questionarios, throwable ->
+                FStorageUtil.startQuestionariosObserver(userId) { questionarios, throwable ->
                     if (throwable != null) {
                         Log.e("Firestore", "Erro ao observar questionários: ${throwable.message}")
                     } else {
                         questionarios?.let {
-                            // Armazena todos os questionários que foram recuperados
-                            _questionariosAux.value = it // Atualiza a lista de questionários
+                            _questionariosAux.value = it
+                        }
+                    }
+                }
+            }
+        } else {
+            Log.e("Firestore", "Utilizador não autenticado")
+        }
+    }
+    private val _perguntasAux = mutableStateOf<List<Pergunta>>(emptyList())
+    val perguntasAux: State<List<Pergunta>> get() = _perguntasAux
+    fun startPerguntasObserver() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            viewModelScope.launch {
+                FStorageUtil.startPerguntasObserver(userId) { perguntas, throwable ->
+                    if (throwable != null) {
+                        Log.e("Firestore", "Erro ao observar perguntas: ${throwable.message}")
+                    } else {
+                        perguntas?.let {
+                            _perguntasAux.value = it
                         }
                     }
                 }
@@ -136,14 +154,14 @@ open class FirebaseViewModel : ViewModel() {
     }
 
 
-//    fun startObserver() {
-//        viewModelScope.launch {
-//            FStorageUtil.startObserver { g, t ->
-//                _nrgames.longValue = g
-//                _topscore.longValue = t
-//            }
-//        }
-//    }
+    fun startObserver() {
+        viewModelScope.launch {
+            FStorageUtil.startObserver { g, t ->
+                _nrgames.longValue = g
+                _topscore.longValue = t
+            }
+        }
+    }
 
 
     fun stopObserver() {

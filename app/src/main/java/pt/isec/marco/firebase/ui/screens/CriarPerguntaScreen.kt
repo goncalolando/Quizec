@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.google.firebase.auth.FirebaseAuth
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 
@@ -736,6 +737,8 @@ fun CriarPerguntaScreen(
                         isEntradaValida = validarP01()
                         pergunta = Pergunta(
                             id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+
                             titulo = nome,
                             imagem = "123",
                             respostas = listOf(""),
@@ -747,6 +750,8 @@ fun CriarPerguntaScreen(
                         isEntradaValida = validarP02()
                         pergunta = Pergunta(
                             id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+
                             titulo = nome,
                             imagem = "123",
                             respostas = nomes,
@@ -765,6 +770,8 @@ fun CriarPerguntaScreen(
                         isEntradaValida = validarP03()
                         pergunta = Pergunta(
                             id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+
                             titulo = nome,
                             imagem = "123",
                             respostas = nomes,
@@ -779,6 +786,7 @@ fun CriarPerguntaScreen(
                         isEntradaValida = validarP04()
                         pergunta = Pergunta(
                             id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                             titulo = nome,
                             imagem = "123",
                             respostas = nomes04shuffled,
@@ -790,6 +798,7 @@ fun CriarPerguntaScreen(
                         isEntradaValida = validarP05()
                         pergunta = Pergunta(
                             id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                             titulo = nome,
                             imagem = "123",
                             respostas = nomes.shuffled(),
@@ -802,6 +811,7 @@ fun CriarPerguntaScreen(
                         isEntradaValida = validarP06()
                         pergunta = Pergunta(
                             id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                             titulo = nome,
                             imagem = "123",
                             respostas = listOf(frase),

@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.auth.FirebaseAuth
 import pt.isec.marco.firebase.R
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import kotlin.math.roundToInt
@@ -606,6 +607,7 @@ fun PerguntaEspacosEmBranco(
         val tiposPerguntas = listOf(
             Pergunta(
                 id = "Q1",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "A água ferve a 100°C?",
                 imagem = "imagem_pergunta1",
                 respostas = listOf(""),
@@ -614,6 +616,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q2",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Qual é a capital da França?",
                 imagem = "imagem_pergunta2",
                 respostas = listOf("Londres", "Berlim", "Paris", "Madrid"),
@@ -622,6 +625,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q3",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico"),
@@ -630,6 +634,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q3",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
@@ -638,6 +643,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q3",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica"),
@@ -646,6 +652,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q3",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Estou na _ e vou para _ "),
@@ -654,6 +661,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q3",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
@@ -662,6 +670,7 @@ fun PerguntaEspacosEmBranco(
             ),
             Pergunta(
                 id = "Q3",
+                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
