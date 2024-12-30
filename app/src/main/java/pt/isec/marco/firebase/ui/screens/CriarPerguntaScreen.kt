@@ -544,13 +544,16 @@ fun CriarPerguntaScreen(
                         )
                     }
                     3 -> {
+                        val primeiraMetade = nomes04.take(nomes04.size / 2).shuffled()
+                        val segundaMetade = nomes04.drop(nomes04.size / 2).shuffled()
+                        val nomes04shuffled = primeiraMetade + segundaMetade
                         isEntradaValida = validarP04()
                         pergunta = Pergunta(
                             id = "",
                             titulo = nome,
                             imagem = "123",
-                            respostas = nomes04,
-                            respostaCerta = emptyList(),
+                            respostas = nomes04shuffled,
+                            respostaCerta = nomes04,
                             tipo = "P04"
                         )
                     }

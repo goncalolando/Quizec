@@ -82,7 +82,7 @@ fun TipoPerguntaCard(
             "P01" -> PerguntaVF(pergunta, showComplete,showAnswer)
             "P02" -> PerguntaEM(pergunta, showComplete,showAnswer,false)
             "P03" -> PerguntaEM(pergunta, showComplete,showAnswer,true)
-            "P04" -> PerguntaCorrespondecia(pergunta)
+            "P04" -> PerguntaCorrespondecia(pergunta,showComplete,showAnswer)
             "P06" -> PerguntaEspacosEmBranco(pergunta)
             else -> {
                 Text("Tipo de pergunta desconhecido")
@@ -236,133 +236,151 @@ fun PerguntaEM(
 @Composable
 fun PerguntaCorrespondecia(
     pergunta: Pergunta,
+    showComplete: Boolean = false,
+    showAnswer: ShowAnswer?,
     modifier: Modifier = Modifier
 ){
+    val selectedAnswerList = when (showAnswer) {
+        is ShowAnswer.ListAnswer -> showAnswer.value
+        else ->  List(pergunta.respostas.size) { "" }
+    }
+
     Text(stringResource(R.string.P04_name))
     Text("Pergunta: ${pergunta.titulo}")
     Spacer(modifier = Modifier.height(16.dp))
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ){
-        Column(
-            modifier = Modifier
-                .weight(2f)
-                .fillMaxWidth()
-        ) {
-            Text("Resposta:")
-            for (i in 0 until pergunta.respostas.size / 2) {
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp)
-                ) {
-                    Box(
+    if (showComplete) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Column(
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxWidth()
+            ) {
+                Text("Resposta:")
+                for (i in 0 until pergunta.respostas.size / 2) {
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(all = 3.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.LightGray)
+                            .padding(8.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(all = 3.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.LightGray)
                         ) {
-                            Text(
-                                text = "${i + 1}. ",
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(start = 8.dp),
-                                color = Color.Blue
-                            )
-                            Text(
-                                text = pergunta.respostas[i],
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(start = 4.dp),
-                                color = Color.Black
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${('A' + i)}.",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    color = Color.Blue
+                                )
+                                Text(
+                                    text = pergunta.respostas[i],
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 4.dp),
+                                    color = Color.Black
+                                )
+                            }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(all = 3.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.LightGray)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(all = 3.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.LightGray)
                         ) {
-                            Text(
-                                text = "${('A' + i)}. ",
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(start = 8.dp),
-                                color = Color.Blue
-                            )
-                            Text(
-                                text = pergunta.respostas[i + pergunta.respostas.size / 2],
-                                fontSize = 16.sp,
-                                modifier = Modifier.padding(start = 4.dp),
-                                color = Color.Black
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${i + 1}. ",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    color = Color.Blue
+                                )
+                                Text(
+                                    text = pergunta.respostas[i + pergunta.respostas.size / 2],
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 4.dp),
+                                    color = Color.Black
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            Text("Resposta:")
-            for (i in 0 until pergunta.respostas.size / 2) {
-                Row(
-                    modifier = Modifier
-                        .padding(8.dp)
-                ) {
-                    Box(
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                Text("Resposta:")
+                for (i in 0 until pergunta.respostas.size / 2) {
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .height(20.dp)
-                            .width(20.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.LightGray)
+                            .padding(8.dp)
                     ) {
-                        Text(
-                            text = (i + 1).toString(),
-                            fontSize = 16.sp,
-                            modifier = Modifier.padding(start = 8.dp),
-                            color = Color.Blue
-                        )
-                    }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(all = 3.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.LightGray)
+                        ) {
+                            Text(
+                                text = ('A' + i).toString(),
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(start = 8.dp),
+                                color = Color.Blue
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .height(20.dp)
-                            .width(20.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.LightGray)
-                    ) {
-                        var upperCaseText by remember { mutableStateOf("") }
-                        TextField(
-                            value = upperCaseText,
-                            onValueChange = { newText ->
-                                if (newText.length == 1 && newText[0].isLetter()) {
-                                    upperCaseText = newText.uppercase()
-                                }
-                            },
-                            modifier = Modifier.padding(start = 8.dp)
-                                .padding(all = 1.dp)
-                                .background(Color.Transparent),
-                            readOnly = false
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(all = 3.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color.LightGray)
+                        ) {
+                            var upperCaseText by remember { mutableStateOf("") }
+                            if(showAnswer != null){
+                                Text(
+                                    text = "${selectedAnswerList[i]}",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    color = Color.Blue
+                                )
+                            }
+                            TextField(
+                                value = upperCaseText,
+                                onValueChange = { newText ->
+                                    if (newText.length == 1 && newText[0].isLetter()) {
+                                        upperCaseText = newText.uppercase()
+                                    }
+                                },
+                                modifier = Modifier.padding(start = 8.dp)
+                                    .padding(all = 8.dp)
+                                    .background(Color.Transparent)
+                                    .width(32.dp)
+                                    .height(32.dp)
+                                    .background(Color.LightGray),
+                                readOnly = showAnswer != null,
+                            )
+                        }
                     }
                 }
             }
