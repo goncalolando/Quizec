@@ -55,14 +55,6 @@ open class FirebaseViewModel : ViewModel() {
         _user.value = null
         _error.value = null
     }
-    private val _descricao = mutableStateOf("")
-    val descricao: State<String>
-        get() = _descricao
-
-    private val _perguntas = mutableStateOf(emptyList<Pergunta>())
-    val perguntass: State<List<Pergunta>>
-        get() = _perguntas
-
 
     private val _nrgames = mutableLongStateOf(0L)
     open val nrgames : State<Long>
@@ -112,8 +104,10 @@ open class FirebaseViewModel : ViewModel() {
             }
         }
     }
+
     private val _questionariosAux = mutableStateOf<List<Questionario>>(emptyList())
     val questionariosAux: State<List<Questionario>> get() = _questionariosAux
+
     fun startQuestionariosObserver() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
@@ -132,8 +126,10 @@ open class FirebaseViewModel : ViewModel() {
             Log.e("Firestore", "Utilizador não autenticado")
         }
     }
+
     private val _perguntasAux = mutableStateOf<List<Pergunta>>(emptyList())
     val perguntasAux: State<List<Pergunta>> get() = _perguntasAux
+
     fun startPerguntasObserver() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
@@ -153,7 +149,6 @@ open class FirebaseViewModel : ViewModel() {
         }
     }
 
-
     fun startObserver() {
         viewModelScope.launch {
             FStorageUtil.startObserver { g, t ->
@@ -163,15 +158,9 @@ open class FirebaseViewModel : ViewModel() {
         }
     }
 
-
     fun stopObserver() {
         viewModelScope.launch {
             FStorageUtil.stopObserver()
         }
     }
-
-    private val _questionarios_criados = mutableStateOf(listOf<Questionario>())
-
-
-
 }
