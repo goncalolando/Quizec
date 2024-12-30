@@ -13,6 +13,7 @@ data class Questionario(
             val perguntas = document.get("perguntas") as? List<Map<String, Any>> ?: listOf()
 
             val listaPerguntas = perguntas.mapNotNull { pergunta ->
+                val id = pergunta["id"] as? String
                 val idUtilizador = pergunta["idUtilizador"] as? String
                 val titulo = pergunta["titulo"] as? String
                 val imagem = pergunta["imagem"] as? String
@@ -20,9 +21,9 @@ data class Questionario(
                 val respostaCerta = pergunta["respostaCerta"] as? List<String>
                 val tipo = pergunta["tipo"] as? String
 
-                if (idUtilizador != null && titulo != null && imagem != null && respostas != null && respostaCerta != null && tipo != null) {
+                if (id != null && idUtilizador != null && titulo != null && imagem != null && respostas != null && respostaCerta != null && tipo != null) {
                     Pergunta(
-                        id = document.id,
+                        id = id,
                         idUtilizador = idUtilizador ,
                         titulo = titulo,
                         imagem = imagem,

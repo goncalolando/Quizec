@@ -14,7 +14,7 @@ data class Pergunta(
     companion object {
         fun fromFirestore(document: DocumentSnapshot): Pergunta {
             return Pergunta(
-                id = document.id,
+                id = document.getString("id") ?: "",
                 idUtilizador = document.getString("idUtilizador") ?: "",
                 titulo = document.getString("titulo") ?: "",
                 imagem = document.getString("imagem") ?: "",

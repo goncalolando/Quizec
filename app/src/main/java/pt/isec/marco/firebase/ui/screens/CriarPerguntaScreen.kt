@@ -513,17 +513,6 @@ fun T06_Opcoes(
 
 }
 
-@Composable
-fun T08_Opcoes(
-    countButton: Int,
-    nomes: List<String>,
-    isNomeInvalidList: List<Boolean>,
-    onNomeChange: (Int, String) -> Unit
-){
-
-}
-
-
 
 @Composable
 fun CriarPerguntaScreen(
@@ -674,6 +663,7 @@ fun CriarPerguntaScreen(
         }
         return isValid
     }
+
     fun validarP06(): Boolean{
         var isValid = true
         if (nome.isEmpty()) {
@@ -698,6 +688,7 @@ fun CriarPerguntaScreen(
         }
         return isValid
     }
+
     fun validarP08(): Boolean {
         var isValid = true
         if (nome.isEmpty()) {

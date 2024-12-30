@@ -48,10 +48,10 @@ fun SelecionarPerguntasScreen(
         Text("Nenhuma pergunta disponível")
     } else {
         Box(
-            modifier = Modifier.fillMaxSize() // Box que ocupa toda a tela
+            modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize() // A LazyColumn vai ocupar o restante espaço
+                modifier = Modifier.fillMaxSize()
             ) {
                 items(perguntas) { pergunta ->
                     var isSelected by remember { mutableStateOf(false) }
@@ -65,11 +65,12 @@ fun SelecionarPerguntasScreen(
                             .clickable {
                                 isSelected = !isSelected
                                 if(isSelected) {
-                                    Log.d("SelecionarPerguntasScreen", "Adicionou pergunta ${pergunta.titulo}")
+                                    Log.d("SelecionarPerguntasScreen", "Adicionou pergunta ${pergunta.id}")
                                     viewModel.perguntas.value += pergunta.id
+                                    Log.d("SelecionarPerguntasScreen", "Adicionou pergunta ${viewModel.perguntas.value.size}")
                                 }
                                 else {
-                                    Log.d("SelecionarPerguntasScreen", "Removeu pergunta ${pergunta.titulo}")
+                                    Log.d("SelecionarPerguntasScreen", "Removeu pergunta ${pergunta.id}")
                                     viewModel.perguntas.value -= pergunta.id
                                 }
                             },

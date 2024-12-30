@@ -86,7 +86,7 @@ fun TipoPerguntaCard(
             val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
             ShowAnswer.IntAnswer(respostaIndex)
         }
-        "P03" -> {
+        "P03"  -> {
             val respostaIndex = pergunta.respostaCerta.mapNotNull { it.toIntOrNull() }
             ShowAnswer.ListAnswer(respostaIndex)
         }
@@ -127,6 +127,10 @@ fun TipoPerguntaCard(
                 }
             }
             ShowAnswer.StringAnswer(result.toString())
+        }
+        "P08" -> {
+            val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
+            ShowAnswer.IntAnswer(respostaIndex)
         }
 
         else -> ShowAnswer.NotAnswered
@@ -613,9 +617,32 @@ fun PerguntaPalavras(
     showComplete: Boolean = false,
     showAnswer: ShowAnswer?
 ){
+    val selectedAnswerString = when (showAnswer) {
+        is ShowAnswer.IntAnswer -> showAnswer.value
+        else ->  -1
+    }
+
     Text(stringResource(R.string.P08_name))
     Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
+
+    if (showComplete) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize()
+        ){
+
+            if (selectedAnswerString != null) {
+                T06_Opcoes(
+                    selectedAnswerString,
+                    pergunta.respostaCerta,
+                    isNomeInvalidList = List(pergunta.respostaCerta.size) { false },
+                    onNomeChange = { _, _ -> }
+                )
+            }
+        }
+    }
 
 }
 
