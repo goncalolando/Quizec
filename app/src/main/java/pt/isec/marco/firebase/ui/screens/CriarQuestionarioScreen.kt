@@ -25,13 +25,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.suspendCancellableCoroutine
+import com.google.firebase.auth.FirebaseAuth
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
 import pt.isec.marco.firebase.ui.viewmodels.Questionario
-import pt.isec.marco.firebase.utils.FStorageUtil
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
+import pt.isec.marco.firebase.utils.FStorageUtil.Companion.getPerguntaByIdSuspend
 
 @Composable
 fun CriarQuestionarioScreen(
@@ -49,6 +47,10 @@ fun CriarQuestionarioScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("User: ${viewModel.user.value?.email ?: ""}")
+            repeat(viewModel.perguntas.value.size) { iteration ->
+                val pergunta = viewModel.perguntas.value[iteration]
+
+            }
         }
         Column(
             modifier = Modifier
@@ -106,12 +108,13 @@ fun CriarQuestionarioScreen(
                      viewModel.addQuestioanrioToFirestore(
                             Questionario(
                                 id = "",
+                                idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                                 descricao = "Questionáriofuncionado",
                                 perguntas = perguntas
                             )
                         )
-                     showSuccessMessage = true
                     viewModel.perguntas.value = emptyList()
+                    showSuccessMessage = true
                 },
                 onDismiss = { confirmaDialog = false }
             )
@@ -132,28 +135,13 @@ fun CriarQuestionarioScreen(
 
 suspend fun getPerguntasByIds(perguntasIds: List<String>): List<Pergunta> {
     val perguntas = mutableListOf<Pergunta>()
-    // Aguarda a recuperação de todas as perguntas
     for (perguntaId in perguntasIds) {
-        val pergunta = getPerguntaByIdSuspended(perguntaId)
+        val pergunta = getPerguntaByIdSuspend(perguntaId)
         if (pergunta != null) {
             perguntas.add(pergunta)
         }
     }
     return perguntas
-}
-suspend fun getPerguntaByIdSuspended(perguntaId: String): Pergunta? {
-    return suspendCancellableCoroutine { continuation ->
-        // Chama a função original com um callback
-        FStorageUtil.getPerguntaById(perguntaId) { pergunta, error ->
-            if (error != null) {
-                // Se houver erro, "resumimos" a coroutine com a exceção
-                continuation.resumeWithException(error)
-            } else {
-                // Se a pergunta foi encontrada, "resumimos" com o resultado
-                continuation.resume(pergunta)
-            }
-        }
-    }
 }
 
 @Composable

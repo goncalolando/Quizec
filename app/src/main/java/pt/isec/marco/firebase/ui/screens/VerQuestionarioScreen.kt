@@ -21,7 +21,6 @@ fun VerQuestionarioScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController,
     showComplete: Boolean = false,
-    showAnswer: Boolean? = null
 ) {
     val perguntasIds = viewModel.perguntas.value
     var perguntas by remember { mutableStateOf<List<Pergunta>>(emptyList()) }

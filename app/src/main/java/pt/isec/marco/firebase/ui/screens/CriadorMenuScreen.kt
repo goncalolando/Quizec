@@ -39,7 +39,7 @@ fun CriadorMenuScreen(
 
         Button(
             onClick = {
-                navController.navigate("menu-criador") {
+                navController.navigate("historico-questionarios") {
                     popUpTo("historico-questionarios") {
                         inclusive = true
                     }

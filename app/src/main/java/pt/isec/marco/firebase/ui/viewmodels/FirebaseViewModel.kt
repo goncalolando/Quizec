@@ -1,57 +1,23 @@
 package pt.isec.marco.firebase.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import pt.isec.marco.firebase.utils.FAuthUtil
+import pt.isec.marco.firebase.utils.FAuthUtil.Companion.currentUser
 import pt.isec.marco.firebase.utils.FStorageUtil
-
-data class User(
-    val name: String,
-    val email: String,
-    val picture: String?
-)
-data class Pergunta(
-    var id: String,
-    val titulo: String,
-    val imagem: String,
-    val respostas: List<String>,
-    val respostaCerta: List<String>,
-    val tipo: String
-){
-    companion object {
-        fun fromFirestore(document: DocumentSnapshot): Pergunta {
-            return Pergunta(
-                id = document.id,
-                titulo = document.getString("titulo") ?: "",
-                imagem = document.getString("imagem") ?: "",
-                respostas = document.get("respostas") as? List<String> ?: listOf(),
-                respostaCerta = document.get("respostaCerta") as? List<String> ?: listOf(),
-                tipo = document.getString("tipo") ?: ""
-            )
-        }
-    }
-}
-data class Questionario(var id: String, val descricao: String, val perguntas: List<Pergunta>)
-
-fun FirebaseUser.toUser(): User {
-    val displayName = this.displayName?: ""
-    val strEmail = this.email?: ""
-    val picture = this.photoUrl?.toString()
-    return User(displayName, strEmail, picture)
-}
 
 open class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val perguntas = mutableStateOf(listOf<String>())
     val questionarios = mutableStateOf(listOf<String>())
 
-    open val user : State<User?>
+    open val user : State<Utilizador?>
         get() = _user
 
     private val _error = mutableStateOf<String?>(null)
@@ -89,6 +55,13 @@ open class FirebaseViewModel : ViewModel() {
         _user.value = null
         _error.value = null
     }
+    private val _descricao = mutableStateOf("")
+    val descricao: State<String>
+        get() = _descricao
+
+    private val _perguntas = mutableStateOf(emptyList<Pergunta>())
+    val perguntass: State<List<Pergunta>>
+        get() = _perguntas
 
 
     private val _nrgames = mutableLongStateOf(0L)
@@ -139,15 +112,39 @@ open class FirebaseViewModel : ViewModel() {
             }
         }
     }
-
+    private val _questionariosAux = mutableStateOf<List<Questionario>>(emptyList()) // Lista de questionários
+    val questionariosAux: State<List<Questionario>> get() = _questionariosAux
     fun startObserver() {
-        viewModelScope.launch {
-            FStorageUtil.startObserver { g, t ->
-                _nrgames.longValue = g
-                _topscore.longValue = t
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            viewModelScope.launch {
+                // Chama o método de observação passando o userId
+                FStorageUtil.startObserver(userId) { questionarios, throwable ->
+                    if (throwable != null) {
+                        Log.e("Firestore", "Erro ao observar questionários: ${throwable.message}")
+                    } else {
+                        questionarios?.let {
+                            // Armazena todos os questionários que foram recuperados
+                            _questionariosAux.value = it // Atualiza a lista de questionários
+                        }
+                    }
+                }
             }
+        } else {
+            Log.e("Firestore", "Utilizador não autenticado")
         }
     }
+
+
+//    fun startObserver() {
+//        viewModelScope.launch {
+//            FStorageUtil.startObserver { g, t ->
+//                _nrgames.longValue = g
+//                _topscore.longValue = t
+//            }
+//        }
+//    }
+
 
     fun stopObserver() {
         viewModelScope.launch {
@@ -156,6 +153,7 @@ open class FirebaseViewModel : ViewModel() {
     }
 
     private val _questionarios_criados = mutableStateOf(listOf<Questionario>())
+
 
 
 }
