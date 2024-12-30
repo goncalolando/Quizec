@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -40,7 +44,7 @@ fun CriarQuestionarioScreen(
     var confirmaDialog by remember { mutableStateOf(false) }
     var mostraMsgSucesso by remember { mutableStateOf(false) }
     var nomeQuestionario by remember { mutableStateOf("") } // Variável para armazenar o nome do questionário
-
+    var descricao by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -55,29 +59,84 @@ fun CriarQuestionarioScreen(
                 val pergunta = viewModel.perguntas.value[iteration]
             }
         }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(Modifier.height(32.dp))
+                Text(
+                    text = "Cria questionário",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 48.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            Text("Questionário")
+            Spacer(Modifier.height(48.dp))
+            TextField(
+                value = descricao,
+                onValueChange = { newText ->
+                    descricao = newText
+                },
+                label = { Text("Descrição:") },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.LightGray,
+                    unfocusedContainerColor = Color.LightGray,
+                    focusedIndicatorColor = Color.Blue,
+                    unfocusedIndicatorColor = Color.Gray,
+                    cursorColor = Color.Blue
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+
+            )
+//            TextField(
+//                value = descricao,
+//                isError = descricao.isEmpty(),
+//
+//                label = {
+//                    Text("Descrição:")
+//                },
+//                onValueChange = { newText ->
+//                    descricao = newText
+//                },
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//            )
+            Spacer(Modifier.height(16.dp))
             Button(
                 onClick = {
                     navController.navigate("tipo-pergunta") {
                         popUpTo("tipo-pergunta") { inclusive = true }
                     }
-                }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RectangleShape
             ) {
-                Text("Criar pergunta")
+                Text("Criar nova pergunta")
             }
             Button(
                 onClick = {
                     navController.navigate("seleciona-perguntas") {
                         popUpTo("seleciona-perguntas") { inclusive = true }
                     }
-                }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RectangleShape
             ) {
                 Text("Adicionar perguntas já existentes")
             }
@@ -86,7 +145,12 @@ fun CriarQuestionarioScreen(
                     navController.navigate("ver-questionario") {
                         popUpTo("ver-questionario") { inclusive = true }
                     }
-                }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RectangleShape
             ) {
                 Text("Ver questionário")
             }
