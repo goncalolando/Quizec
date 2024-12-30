@@ -71,7 +71,8 @@ fun CriarQuestionarioScreen(
                 Text(
                     text = "Cria questionário",
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color.DarkGray
                 )
             }
         Column(
