@@ -1,9 +1,7 @@
 package pt.isec.marco.firebase.ui.screens
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -63,7 +61,15 @@ fun VerQuestionarioScreen(
                         for(i in 0 until pergunta.respostaCerta.size/2){
                             val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
                             val index2 = pergunta.respostas.indexOf(pergunta.respostaCerta[index+pergunta.respostas.size/2])
-                            respostaIndex[i] = index2 - pergunta.respostas.size/2
+                            respostaIndex[i] = index2 - pergunta.respostas.size/2 + 1
+                        }
+                        ShowAnswer.ListAnswer(respostaIndex)
+                    }
+                    "P05" -> {
+                        val respostaIndex = List(pergunta.respostas.size) {-1}.toMutableList()
+                        for(i in 0 until pergunta.respostaCerta.size) {
+                            val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
+                            respostaIndex[index] = i + 1
                         }
                         ShowAnswer.ListAnswer(respostaIndex)
                     }

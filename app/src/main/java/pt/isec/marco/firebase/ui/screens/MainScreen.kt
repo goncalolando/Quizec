@@ -188,7 +188,6 @@ fun MainScreen(
                         viewModel = viewModel,
                         navController = navController
                     )
-
                 }
             }
             composable(route = "tipo-pergunta") {

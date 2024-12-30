@@ -83,7 +83,10 @@ fun TipoPerguntaCard(
             "P02" -> PerguntaEM(pergunta, showComplete,showAnswer,false)
             "P03" -> PerguntaEM(pergunta, showComplete,showAnswer,true)
             "P04" -> PerguntaCorrespondecia(pergunta,showComplete,showAnswer)
+            "P05" -> PerguntaOrdenacao(pergunta,showComplete,showAnswer)
             "P06" -> PerguntaEspacosEmBranco(pergunta)
+            "P07" -> PerguntaEspacosEmBranco(pergunta)
+            "P08" -> PerguntaEspacosEmBranco(pergunta)
             else -> {
                 Text("Tipo de pergunta desconhecido")
             }
@@ -105,8 +108,6 @@ fun PerguntaVF(
     Text("Pergunta: ${pergunta.titulo}")
     if(showComplete){
         Spacer(modifier = Modifier.height(16.dp))
-        var i = 0
-        while(pergunta.respostas.size > i) {
             Column{
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -118,7 +119,6 @@ fun PerguntaVF(
                         false -> Color.Red
                         else -> Color.Gray
                     }
-
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -137,8 +137,7 @@ fun PerguntaVF(
                             )
                         )
                     }
-                    Column(
-                        modifier = Modifier
+                    Column(modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -156,8 +155,6 @@ fun PerguntaVF(
                         )
                     }
                 }
-            }
-            i++
         }
     }
 }
@@ -244,7 +241,6 @@ fun PerguntaCorrespondecia(
         is ShowAnswer.ListAnswer -> showAnswer.value
         else ->  List(pergunta.respostas.size) { "" }
     }
-
     Text(stringResource(R.string.P04_name))
     Text("Pergunta: ${pergunta.titulo}")
     Spacer(modifier = Modifier.height(16.dp))
@@ -388,20 +384,131 @@ fun PerguntaCorrespondecia(
     }
 }
 
+@Composable
+fun PerguntaOrdenacao(
+    pergunta: Pergunta,
+    showComplete: Boolean = false,
+    showAnswer: ShowAnswer?,
+
+){
+    val selectedAnswerList = when (showAnswer) {
+        is ShowAnswer.ListAnswer -> showAnswer.value
+        else ->  List(pergunta.respostas.size) { "" }
+    }
+    Text(stringResource(R.string.P04_name))
+    Text("Pergunta: ${pergunta.titulo}")
+    Spacer(modifier = Modifier.height(16.dp))
+    if (showComplete) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Column(
+                    modifier = Modifier
+                        .weight(2f)
+                        .fillMaxWidth()
+                ) {
+                    Text("Pergunta:")
+                    for (i in 0 until pergunta.respostas.size) {
+                        Row(
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                                    .padding(all = 3.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color.LightGray)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "${(i+1)}.",
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 8.dp),
+                                        color = Color.Blue
+                                    )
+                                    Text(
+                                        text = pergunta.respostas[i],
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 4.dp),
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    Text("Ordem:")
+                    for (i in 0 until pergunta.respostas.size) {
+                        Row(
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                                    .padding(all = 3.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(Color.LightGray)
+                            ) {
+                                var upperCaseText by remember { mutableStateOf("") }
+                                if(showAnswer != null){
+                                    Text(
+                                        text = "${selectedAnswerList[i]}",
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.padding(start = 8.dp),
+                                        color = Color.Blue
+                                    )
+                                }else{
+                                    TextField(
+                                        value = upperCaseText,
+                                        onValueChange = { newText ->
+                                            if (newText.length == 1 && newText[0].isLetter()) {
+                                                upperCaseText = newText.uppercase()
+                                            }
+                                        },
+                                        modifier = Modifier.padding(start = 8.dp)
+                                            .padding(all = 8.dp)
+                                            .background(Color.Transparent)
+                                            .width(32.dp)
+                                            .height(32.dp)
+                                            .background(Color.LightGray),
+                                        readOnly = showAnswer != null,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    }
+                }
+            }
+        }
 
 
-    @Composable
-    fun PerguntaEspacosEmBranco(
-        pergunta: Pergunta,
-        modifier: Modifier = Modifier
-    ) {
+
+@Composable
+fun PerguntaEspacosEmBranco(
+    pergunta: Pergunta,
+    modifier: Modifier = Modifier
+) {
         Text(stringResource(R.string.P06_name))
         Text("Pergunta: ${pergunta.titulo}")
         Spacer(modifier = Modifier.height(16.dp))
     }
 
 
-    @Composable
+@Composable
     fun TipoPerguntaScreen(
         viewModel: FirebaseViewModel,
         navController: NavHostController,
@@ -439,6 +546,38 @@ fun PerguntaCorrespondecia(
                 respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
                 respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
                 tipo = "P04"
+            ),
+            Pergunta(
+                id = "Q3",
+                titulo = "Selecione os continentes",
+                imagem = "imagem_pergunta3",
+                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                respostaCerta = listOf(  "Oceania","Europa", "Antártica","Ásia"),
+                tipo = "P05"
+            ),
+            Pergunta(
+                id = "Q3",
+                titulo = "Selecione os continentes",
+                imagem = "imagem_pergunta3",
+                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
+                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                tipo = "P06"
+            ),
+            Pergunta(
+                id = "Q3",
+                titulo = "Selecione os continentes",
+                imagem = "imagem_pergunta3",
+                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
+                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                tipo = "P07"
+            ),
+            Pergunta(
+                id = "Q3",
+                titulo = "Selecione os continentes",
+                imagem = "imagem_pergunta3",
+                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
+                respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
+                tipo = "P08"
             )
 
         )
@@ -507,3 +646,5 @@ fun PerguntaCorrespondecia(
         }
     }
 
+// TODO FINAL
+// trocar o answers para dentro do composable
