@@ -594,6 +594,7 @@ fun PerguntaAssociacao(
     Text(stringResource(R.string.P07_name))
     Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
+
 }
 
 @Composable

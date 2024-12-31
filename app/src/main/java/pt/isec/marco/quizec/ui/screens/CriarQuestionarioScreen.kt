@@ -68,30 +68,21 @@ fun CriarQuestionarioScreen(
         ) {
             Text("User: ${viewModel.user.value?.email ?: ""}")
         }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(Modifier.height(32.dp))
-                Text(
-                    text = "Cria questionário",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.DarkGray
-                )
-                AdicionaImagens(picture, context, imagePath)
-
-            }
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = 48.dp),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(Modifier.height(32.dp))
+            Text(
+                text = "Cria questionário",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.DarkGray
+            )
+            AdicionaImagens(picture, context, imagePath)
             Spacer(Modifier.height(48.dp))
             TextField(
                 value = descricao,

@@ -238,7 +238,22 @@ fun T06_PerguntaEspacos(
 
 }
 @Composable
-fun T07_PerguntasAssociacao(){}
+fun T07_PerguntasAssociacao(
+
+){
+    Column(
+        modifier = Modifier.fillMaxWidth()
+
+    ) {
+//        T07_Opcoes(
+//            pergunta.respostaCerta.size,
+//            pergunta.respostaCerta,
+//            pergunta.imagem,
+//            isNomeInvalidList = List(pergunta.respostaCerta.size) { false },
+//            onNomeChange = { _, _ -> }
+//        )
+    }
+}
 @Composable
 fun T08_PerguntaPalavras(
     selected: Int,
@@ -250,11 +265,11 @@ fun T08_PerguntaPalavras(
     onNrRespostasChange: (Int) -> Unit,
     adicinaPalavra: () -> Unit,
     removePalavra: () -> Unit
-){
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
 
-    ){
+    ) {
         Text("Número de palavras permitidas: $nrRespostas")
 
         Slider(
@@ -269,7 +284,7 @@ fun T08_PerguntaPalavras(
                 .padding(horizontal = 16.dp)
         )
 
-        if(nomes.isNotEmpty()){
+        if (nomes.isNotEmpty()) {
             Text("Respostas:")
             T06_Opcoes(
                 nomes.size,
@@ -281,23 +296,23 @@ fun T08_PerguntaPalavras(
         Button(
             onClick = {
                 adicinaPalavra()
-                onCountChange(selected +1)
+                onCountChange(selected + 1)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-        ){
+        ) {
             Text("Adicionar resposta")
         }
         Button(
             onClick = {
                 removePalavra()
-                onCountChange(selected-1)
+                onCountChange(selected - 1)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
-        ){
+        ) {
             Text("Remove resposta")
         }
 
@@ -336,7 +351,7 @@ fun BotoesLista(
                     onCountChange(num)
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if(selected == num) Color.DarkGray else Color.LightGray
+                    containerColor = if (selected == num) Color.DarkGray else Color.LightGray
                 )
             ) {
                 Text(num.toString())
@@ -388,7 +403,7 @@ fun T02_Opcoes(
                     onCheckedChange(if (it) i else null)
                 }
             )
-            OutlinedTextField("Resposta :",i, nomes, isNomeInvalidList, onNomeChange)
+            OutlinedTextField("Resposta :", i, nomes, isNomeInvalidList, onNomeChange)
         }
         if (isCheckedInvalid && i == countButton - 1) {
             Text(
@@ -427,7 +442,7 @@ fun T03_Opcoes(
                     }
                 }
             )
-            OutlinedTextField("Resposta: ",i, nomes, isNomeInvalidList, onNomeChange)
+            OutlinedTextField("Resposta: ", i, nomes, isNomeInvalidList, onNomeChange)
         }
 
         if (isCheckedInvalid && i == countButton - 1) {
@@ -447,11 +462,11 @@ fun T04_Opcoes(
     isNomeInvalidList: List<Boolean>,
     onNomeChange: (Int, String) -> Unit
 ) {
-    for (i in 0 until countButton){
-        Row (
+    for (i in 0 until countButton) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-        ){
+        ) {
             OutlinedTextField(
                 value = nomes.getOrElse(i) { "" },
                 onValueChange = { newText -> onNomeChange(i, newText) },
@@ -480,11 +495,11 @@ fun T05_Opcoes(
     isNomeInvalidList: List<Boolean>,
     onNomeChange: (Int, String) -> Unit
 ) {
-    for (i in 0 until countButton){
-        Row (
+    for (i in 0 until countButton) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-        ){
+        ) {
             OutlinedTextField(
                 value = nomes.getOrElse(i) { "" },
                 onValueChange = { newText -> onNomeChange(i, newText) },
@@ -504,7 +519,7 @@ fun T06_Opcoes(
     nomes: List<String>,
     isNomeInvalidList: List<Boolean>,
     onNomeChange: (Int, String) -> Unit
-){
+) {
     Column {
         for (i in 0 until countButton step 3) {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -525,8 +540,34 @@ fun T06_Opcoes(
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
+}
 
-
+@Composable
+fun T07_Opcoes(
+    countButton: Int,
+    nomes: List<String>,
+    picture: MutableState<String?>,
+    isNomeInvalidList: List<Boolean>,
+    onNomeChange: (Int, String) -> Unit
+) {
+    for (i in 0 until countButton) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            MeteImagem(
+                picture
+            )
+            OutlinedTextField(
+                value = nomes.getOrElse(i + countButton) { "" },
+                onValueChange = { newText -> onNomeChange(i + countButton, newText) },
+                label = { Text("${('A' + i)}. ") },
+                isError = isNomeInvalidList.getOrElse(i + countButton) { false },
+                modifier = Modifier
+                    .weight(1f)
+            )
+        }
+    }
 }
 
 
@@ -541,7 +582,7 @@ fun CriarPerguntaScreen(
     val context = LocalContext.current
     var error by remember { mutableStateOf<String?>(null) }
     val picture = remember { mutableStateOf<String?>(null) }
-    val imagePath : String by lazy { FileUtils.getTempFilename(context) }
+    val imagePath: String by lazy { FileUtils.getTempFilename(context) }
 
     var nome by remember { mutableStateOf("") }
     var isNomeInvalid by remember { mutableStateOf(false) }
@@ -553,12 +594,14 @@ fun CriarPerguntaScreen(
     var isCheckedInvalid02 by remember { mutableStateOf(false) }
     var countButton by remember { mutableIntStateOf(2) }
     val nomes = remember(countButton) { mutableStateListOf(*Array(countButton) { "" }) }
-    val isNomeInvalidList = remember(countButton) { mutableStateListOf(*Array(countButton) { false }) }
+    val isNomeInvalidList =
+        remember(countButton) { mutableStateListOf(*Array(countButton) { false }) }
     // P03---------------
     var isChecked03 by remember { mutableStateOf<List<Int>>(emptyList()) }
     // P04---------------
-    val nomes04 = remember(countButton) { mutableStateListOf(*Array(countButton*2) { "" }) }
-    val isNomeInvalidList04 = remember(countButton) { mutableStateListOf(*Array(countButton*2) { false }) }
+    val nomes04 = remember(countButton) { mutableStateListOf(*Array(countButton * 2) { "" }) }
+    val isNomeInvalidList04 =
+        remember(countButton) { mutableStateListOf(*Array(countButton * 2) { false }) }
     val errorMessage by viewModel.error
     var isEntradaValida by remember { mutableStateOf(false) }
     // P06 ----------
@@ -614,7 +657,7 @@ fun CriarPerguntaScreen(
         } else {
             isCheckedInvalid02 = false
         }
-        for(i in 0 until countButton) {
+        for (i in 0 until countButton) {
             if (nomes[i].isEmpty()) {
                 isNomeInvalidList[i] = true
                 isValid = false
@@ -625,7 +668,7 @@ fun CriarPerguntaScreen(
         return isValid
     }
 
-    fun validarP03(): Boolean{
+    fun validarP03(): Boolean {
         var isValid = true
         if (nome.isEmpty()) {
             isNomeInvalid = true
@@ -639,7 +682,7 @@ fun CriarPerguntaScreen(
         } else {
             isCheckedInvalid02 = false
         }
-        for(i in 0 until countButton) {
+        for (i in 0 until countButton) {
             if (nomes[i].isEmpty()) {
                 isNomeInvalidList[i] = true
                 isValid = false
@@ -650,7 +693,7 @@ fun CriarPerguntaScreen(
         return isValid
     }
 
-    fun validarP04(): Boolean{
+    fun validarP04(): Boolean {
 
         var isValid = true
         if (nome.isEmpty()) {
@@ -659,7 +702,7 @@ fun CriarPerguntaScreen(
         } else {
             isNomeInvalid = false
         }
-        for(i in 0 until countButton*2) {
+        for (i in 0 until countButton * 2) {
             if (nomes04[i].isEmpty()) {
                 isNomeInvalidList04[i] = true
             } else {
@@ -669,7 +712,7 @@ fun CriarPerguntaScreen(
         return isValid
     }
 
-    fun validarP05(): Boolean{
+    fun validarP05(): Boolean {
         var isValid = true
         if (nome.isEmpty()) {
             isNomeInvalid = true
@@ -677,7 +720,7 @@ fun CriarPerguntaScreen(
         } else {
             isNomeInvalid = false
         }
-        for(i in 0 until countButton) {
+        for (i in 0 until countButton) {
             if (nomes[i].isEmpty()) {
                 isNomeInvalidList[i] = true
             } else {
@@ -687,7 +730,7 @@ fun CriarPerguntaScreen(
         return isValid
     }
 
-    fun validarP06(): Boolean{
+    fun validarP06(): Boolean {
         var isValid = true
         if (nome.isEmpty()) {
             isNomeInvalid = true
@@ -695,7 +738,7 @@ fun CriarPerguntaScreen(
         } else {
             isNomeInvalid = false
         }
-        for(i in 0 until nomes.size) {
+        for (i in 0 until nomes.size) {
             if (nomes[i].isEmpty()) {
                 isNomeInvalidList[i] = true
                 isValid = false
@@ -712,6 +755,15 @@ fun CriarPerguntaScreen(
         return isValid
     }
 
+    fun validarP07(): Boolean {
+        var isValid = true
+        if (nome.isEmpty()) {
+            isNomeInvalid = true
+            isValid = false
+        }
+        return isValid
+    }
+
     fun validarP08(): Boolean {
         var isValid = true
         if (nome.isEmpty()) {
@@ -720,8 +772,8 @@ fun CriarPerguntaScreen(
         } else {
             isNomeInvalid = false
         }
-        for(i in 0 until palavras08.size) {
-            if (palavras08[i] == "")  {
+        for (i in 0 until palavras08.size) {
+            if (palavras08[i] == "") {
                 isPalavras08Invalid[i] = true
                 isValid = false
             } else {
@@ -756,112 +808,120 @@ fun CriarPerguntaScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
 
-            when (tipoPerguntaSelecionada) {
-                0 -> {
-                    T01_PerguntaVF(
-                        isChecked = isChecked01,
-                        isCheckedInvalid = isCheckedInvalid01,
-                        onCheckedChange = { novoValor -> isChecked01 = novoValor }
-                    )
-                }
-                1 -> {
-                    T02_PerguntaEM(
-                        selected = countButton,
-                        isChecked = isChecked02,
-                        selectedInvalid = isCheckedInvalid02,
-                        onCheckedChange = { novoValor -> isChecked02 = novoValor },
-                        nomes = nomes,
-                        isNomeInvalidList = isNomeInvalidList,
-                        onNomeChange = { index, novoValor ->
-                            nomes[index] = novoValor
-                            isNomeInvalidList[index] = false
-                        },
-                        onCountChange = { novoValor -> countButton = novoValor }
-                    )
-                }
-                2 -> {
-                    T03_PerguntaEM(
-                        selected = countButton,
-                        isChecked = isChecked03,
-                        selectedInvalid = isCheckedInvalid02,
-                        onCheckedChange = { novoValor -> isChecked03 = novoValor },
-                        nomes = nomes,
-                        isNomeInvalidList = isNomeInvalidList,
-                        onNomeChange = { index, novoValor ->
-                            nomes[index] = novoValor
-                            isNomeInvalidList[index] = false
-                        },
-                        onCountChange = { novoValor -> countButton = novoValor })
-                }
-                3 -> {
-                    T04_PerguntaCorrespondecia(
-                        selected = countButton,
-                        nomes = nomes04,
-                        isNomeInvalidList = isNomeInvalidList04,
-                        onNomeChange = { index, novoValor ->
-                            nomes04[index] = novoValor
-                            isNomeInvalidList04[index] = false
-                        },
-                        onCountChange = { novoValor -> countButton = novoValor }
-                    )
-                }
-                4 -> {
-                    T05_PerguntaOrdenacao(
-                        selected = countButton,
-                        nomes = nomes,
-                        isNomeInvalidList = isNomeInvalidList,
-                        onNomeChange = { index, novoValor ->
-                            nomes[index] = novoValor
-                            isNomeInvalidList[index] = false
-                        },
-                        onCountChange = { novoValor -> countButton = novoValor }
-                    )
-                }
-                5 -> {
-                    T06_PerguntaEspacos(
-                        selected = countButton,
-                        nomes = nomes,
-                        frase = frase,
-                        isNomeInvalidList = isNomeInvalidList,
-                        isFraseInvalid = isFraseInvalid,
-                        onNomeChange = { index, novoValor ->
-                            nomes[index] = novoValor
-                            isNomeInvalidList[index] = false
-                        },
-                        onCountChange = { novoValor -> countButton = novoValor },
-                        onFraseChange = {
-                            frase = it
-                            isFraseInvalid = false
-                        }
-                    )
-                }
-                6 -> {
-                    T07_PerguntasAssociacao()
-                }
-                7 -> {
-                    T08_PerguntaPalavras(
-                        selected = countButton,
-                        nrRespostas = nrRespostas08,
-                        nomes = palavras08,
-                        isNomeInvalidList = isPalavras08Invalid,
-                        onNomeChange = { index, novoValor ->
-                            palavras08[index] = novoValor
-                            isNomeInvalidList[index] = false
-                        },
-                        onCountChange = { novoValor -> countButton = novoValor },
-                        onNrRespostasChange = {novoValor -> nrRespostas08 = novoValor},
-                        adicinaPalavra = {
-                            adicinaPalavra()
-                        },
-                        removePalavra = {
-                            removePalavra()
-                        }
-                    )
-                }
-                else -> {
-                    Text("Tipo de pergunta desconhecido")
-                }
+        when (tipoPerguntaSelecionada) {
+            0 -> {
+                T01_PerguntaVF(
+                    isChecked = isChecked01,
+                    isCheckedInvalid = isCheckedInvalid01,
+                    onCheckedChange = { novoValor -> isChecked01 = novoValor }
+                )
             }
+
+            1 -> {
+                T02_PerguntaEM(
+                    selected = countButton,
+                    isChecked = isChecked02,
+                    selectedInvalid = isCheckedInvalid02,
+                    onCheckedChange = { novoValor -> isChecked02 = novoValor },
+                    nomes = nomes,
+                    isNomeInvalidList = isNomeInvalidList,
+                    onNomeChange = { index, novoValor ->
+                        nomes[index] = novoValor
+                        isNomeInvalidList[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor }
+                )
+            }
+
+            2 -> {
+                T03_PerguntaEM(
+                    selected = countButton,
+                    isChecked = isChecked03,
+                    selectedInvalid = isCheckedInvalid02,
+                    onCheckedChange = { novoValor -> isChecked03 = novoValor },
+                    nomes = nomes,
+                    isNomeInvalidList = isNomeInvalidList,
+                    onNomeChange = { index, novoValor ->
+                        nomes[index] = novoValor
+                        isNomeInvalidList[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor })
+            }
+
+            3 -> {
+                T04_PerguntaCorrespondecia(
+                    selected = countButton,
+                    nomes = nomes04,
+                    isNomeInvalidList = isNomeInvalidList04,
+                    onNomeChange = { index, novoValor ->
+                        nomes04[index] = novoValor
+                        isNomeInvalidList04[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor }
+                )
+            }
+
+            4 -> {
+                T05_PerguntaOrdenacao(
+                    selected = countButton,
+                    nomes = nomes,
+                    isNomeInvalidList = isNomeInvalidList,
+                    onNomeChange = { index, novoValor ->
+                        nomes[index] = novoValor
+                        isNomeInvalidList[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor }
+                )
+            }
+
+            5 -> {
+                T06_PerguntaEspacos(
+                    selected = countButton,
+                    nomes = nomes,
+                    frase = frase,
+                    isNomeInvalidList = isNomeInvalidList,
+                    isFraseInvalid = isFraseInvalid,
+                    onNomeChange = { index, novoValor ->
+                        nomes[index] = novoValor
+                        isNomeInvalidList[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor },
+                    onFraseChange = {
+                        frase = it
+                        isFraseInvalid = false
+                    }
+                )
+            }
+
+            6 -> {
+                T07_PerguntasAssociacao()
+            }
+
+            7 -> {
+                T08_PerguntaPalavras(
+                    selected = countButton,
+                    nrRespostas = nrRespostas08,
+                    nomes = palavras08,
+                    isNomeInvalidList = isPalavras08Invalid,
+                    onNomeChange = { index, novoValor ->
+                        palavras08[index] = novoValor
+                        isNomeInvalidList[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor },
+                    onNrRespostasChange = { novoValor -> nrRespostas08 = novoValor },
+                    adicinaPalavra = {
+                        adicinaPalavra()
+                    },
+                    removePalavra = {
+                        removePalavra()
+                    }
+                )
+            }
+
+            else -> {
+                Text("Tipo de pergunta desconhecido")
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -875,162 +935,180 @@ fun CriarPerguntaScreen(
 
         Button(
             onClick = {
-                when(tipoPerguntaSelecionada){
+                when (tipoPerguntaSelecionada) {
                     0 -> {
                         isEntradaValida = validarP01()
                         pergunta = Pergunta(
                             id = "",
                             idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                             titulo = nome,
-                            imagem = imageUrl ?: "123" ,
-                                        respostas = listOf(""),
-                                        respostaCerta = listOf(isChecked01.toString()),
-                                        tipo = "P01"
-                                    )
-                                }
-                                1 -> {
-                                    isEntradaValida = validarP02()
-                                    pergunta = Pergunta(
-                                        id = "",
-                                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            imagem = imageUrl ?: "123",
+                            respostas = listOf(""),
+                            respostaCerta = listOf(isChecked01.toString()),
+                            tipo = "P01"
+                        )
+                    }
 
-                                        titulo = nome,
-                                        imagem = picture.value ?: "",
-                                        respostas = nomes,
-                                        respostaCerta = listOf(isChecked02.toString()),
-                                        tipo = "P02"
-                                    )
-                                }
-                                2 -> {
-                                    val respostasCertas = List(isChecked03.size) { "" }.toMutableList()
+                    1 -> {
+                        isEntradaValida = validarP02()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
 
-                                    if (isChecked03.isNotEmpty()) {
-                                        isChecked03.forEachIndexed { index, item ->
-                                            respostasCertas[index] = isChecked03[index].toString()
-                                        }
-                                    }
-                                    isEntradaValida = validarP03()
-                                    pergunta = Pergunta(
-                                        id = "",
-                                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = nomes,
+                            respostaCerta = listOf(isChecked02.toString()),
+                            tipo = "P02"
+                        )
+                    }
 
-                                        titulo = nome,
-                                        imagem = picture.value ?: "",
-                                        respostas = nomes,
-                                        respostaCerta = respostasCertas,
-                                        tipo = "P03"
-                                    )
-                                }
-                                3 -> {
-                                    val primeiraMetade = nomes04.take(nomes04.size / 2).shuffled()
-                                    val segundaMetade = nomes04.drop(nomes04.size / 2).shuffled()
-                                    val nomes04shuffled = primeiraMetade + segundaMetade
-                                    isEntradaValida = validarP04()
-                                    pergunta = Pergunta(
-                                        id = "",
-                                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                                        titulo = nome,
-                                        imagem = picture.value ?: "",
-                                        respostas = nomes04shuffled,
-                                        respostaCerta = nomes04,
-                                        tipo = "P04"
-                                    )
-                                }
-                                4 -> {
-                                    isEntradaValida = validarP05()
-                                    pergunta = Pergunta(
-                                        id = "",
-                                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                                        titulo = nome,
-                                        imagem = picture.value ?: "",
-                                        respostas = nomes.shuffled(),
-                                        respostaCerta = nomes,
-                                        tipo = "P05"
-                                    )
+                    2 -> {
+                        val respostasCertas = List(isChecked03.size) { "" }.toMutableList()
 
-                                }
-                                5 -> {
-                                    isEntradaValida = validarP06()
-                                    pergunta = Pergunta(
-                                        id = "",
-                                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                                        titulo = nome,
-                                        imagem = picture.value ?: "",
-                                        respostas = listOf(frase),
-                                        respostaCerta = nomes,
-                                        tipo = "P06"
-                                    )
-                                }
-                                7 -> {
-                                    isEntradaValida = validarP08()
-                                    pergunta = Pergunta(
-                                        id = "",
-                                        idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
-                                        titulo = nome,
-                                        imagem = picture.value ?: "",
-                                        respostas = listOf(nrRespostas08.toString()),
-                                        respostaCerta = palavras08,
-                                        tipo = "P08"
-                                    )
-                                }
+                        if (isChecked03.isNotEmpty()) {
+                            isChecked03.forEachIndexed { index, item ->
+                                respostasCertas[index] = isChecked03[index].toString()
                             }
-                        if (isEntradaValida) {
-                            if(picture.value != null){
-                                val fileUri: Uri = Uri.fromFile(picture.value?.let { File(it) })
-                                AMovServer.asyncUploadImage(
-                                    inputStream = context.contentResolver.openInputStream(fileUri)!!,
-                                    extension = "jpg",
-                                    onResult = { result ->
-                                        Log.d("AMovServer", "Result: $result")
-                                        if (result != null) {
-                                            imageUrl = result
-                                            error = null
-                                            pergunta?.imagem = imageUrl ?: ""
-                                        } else {
-                                            error = context.getString(R.string.error_uploading_image)
-                                            imageUrl = null
-                                        }
-                                        pergunta?.let {
-                                            viewModel.addPerguntaToFirestore(
-                                                it
-                                            )
-                                        }
-                                    }
-                                )
-                            }else{
+                        }
+                        isEntradaValida = validarP03()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = nomes,
+                            respostaCerta = respostasCertas,
+                            tipo = "P03"
+                        )
+                    }
+
+                    3 -> {
+                        val primeiraMetade = nomes04.take(nomes04.size / 2).shuffled()
+                        val segundaMetade = nomes04.drop(nomes04.size / 2).shuffled()
+                        val nomes04shuffled = primeiraMetade + segundaMetade
+                        isEntradaValida = validarP04()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = nomes04shuffled,
+                            respostaCerta = nomes04,
+                            tipo = "P04"
+                        )
+                    }
+
+                    4 -> {
+                        isEntradaValida = validarP05()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = nomes.shuffled(),
+                            respostaCerta = nomes,
+                            tipo = "P05"
+                        )
+
+                    }
+
+                    5 -> {
+                        isEntradaValida = validarP06()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = listOf(frase),
+                            respostaCerta = nomes,
+                            tipo = "P06"
+                        )
+                    }
+
+                    6 -> {
+                        isEntradaValida = validarP07()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = listOf(frase),
+                            respostaCerta = nomes,
+                            tipo = "P07"
+                        )
+                    }
+
+                    7 -> {
+                        isEntradaValida = validarP08()
+                        pergunta = Pergunta(
+                            id = "",
+                            idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
+                            titulo = nome,
+                            imagem = picture.value ?: "",
+                            respostas = listOf(nrRespostas08.toString()),
+                            respostaCerta = palavras08,
+                            tipo = "P08"
+                        )
+                    }
+                }
+                if (isEntradaValida) {
+                    if (picture.value != null) {
+                        val fileUri: Uri = Uri.fromFile(picture.value?.let { File(it) })
+                        AMovServer.asyncUploadImage(
+                            inputStream = context.contentResolver.openInputStream(fileUri)!!,
+                            extension = "jpg",
+                            onResult = { result ->
+                                Log.d("AMovServer", "Result: $result")
+                                if (result != null) {
+                                    imageUrl = result
+                                    error = null
+                                    pergunta?.imagem = imageUrl ?: ""
+                                } else {
+                                    error = context.getString(R.string.error_uploading_image)
+                                    imageUrl = null
+                                }
                                 pergunta?.let {
                                     viewModel.addPerguntaToFirestore(
                                         it
                                     )
                                 }
                             }
+                        )
+                    } else {
+                        pergunta?.let {
+                            viewModel.addPerguntaToFirestore(
+                                it
+                            )
+                        }
+                    }
 
-                            if (errorMessage == null) {
-                                navController.navigate("criar-questionario") {
-                                    popUpTo("criar-questionario") { inclusive = true }
+                    if (errorMessage == null) {
+                        navController.navigate("criar-questionario") {
+                            popUpTo("criar-questionario") { inclusive = true }
+                        }
+                    }
+                } else {
+                    imageUrl?.let { url ->
+                        val trimmedUrl = url.trimEnd('/')
+                        val segments = trimmedUrl.split("/")
+                        val filename = segments.lastOrNull() ?: ""
+                        AMovServer.asyncDeleteFileFromServer(
+                            fileName = filename,
+                            serverUrl = trimmedUrl,
+                            onResult = { result ->
+                                if (result) {
+                                    error = null
+                                    imageUrl = null
+                                } else {
+                                    error = context.getString(R.string.error_deleting_image)
                                 }
                             }
-                        }
-                        else{
-                            imageUrl?.let { url ->
-                                val trimmedUrl = url.trimEnd('/')
-                                val segments = trimmedUrl.split("/")
-                                val filename = segments.lastOrNull() ?: ""
-                                AMovServer.asyncDeleteFileFromServer(
-                                    fileName = filename,
-                                    serverUrl = trimmedUrl,
-                                    onResult = { result ->
-                                        if (result) {
-                                            error = null
-                                            imageUrl = null
-                                        } else {
-                                            error = context.getString(R.string.error_deleting_image)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                      },
+                        )
+                    }
+                }
+            },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Text("Guardar")
@@ -1061,31 +1139,40 @@ fun AdicionaImagens(
         }
     }
 
-   Row {
-        Button(
-        onClick = {
-            pickImage.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
-        Text("Select picture")
-    }
         Button(
-        onClick = {
-            takePicture2.launch(
-                FileProvider.getUriForFile(
-                    context,
-                    "pt.isec.marco.quizec.android.fileprovider",
-                    File(imagePath)
+            onClick = {
+                pickImage.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
-            )
+            }
+        ) {
+            Text("Select picture")
         }
-    ) {
-        Text("Take picture")
-    }
+        Button(
+            onClick = {
+                takePicture2.launch(
+                    FileProvider.getUriForFile(
+                        context,
+                        "pt.isec.marco.quizec.android.fileprovider",
+                        File(imagePath)
+                    )
+                )
+            }
+        ) {
+            Text("Take picture")
+        }
     }
     Spacer(Modifier.height(16.dp))
+    MeteImagem(picture)
+}
+
+@Composable
+fun MeteImagem(picture: MutableState<String?>) {
     picture.value?.let { path ->
         AsyncImage(
             model = path,
