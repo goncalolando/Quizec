@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Firebase</string>
+    <string name="app_name">Quizec</string>
     <string name="P01_name">Perguntas de Sim/Não, Verdadeiro/Falso.</string>
     <string name="P02_name">Perguntas de escolha múltipla com apenas uma resposta certa (2-6 opções)</string>
     <string name="P03_name">Perguntas de escolha múltipla com mais de uma resposta correta (2-6 opções)</string>
@@ -8,4 +8,7 @@
     <string name="P06_name">Perguntas de preenchimento de espaços em branco, onde os alunos completam uma frase, equação, ou texto com a palavra ou termo correto.</string>
     <string name="P07_name">Perguntas de associação, onde os alunos devem associar uma imagem ou conceito a uma descrição ou definição.</string>
     <string name="P08_name">Perguntas com resposta baseada na indicação de palavras (caixa individuais para introdução livre de cada palavra).</string>
+    <string name="error_uploading_image">Error uploading image</string>
+    <string name="error_taking_picture">Error taking image</string>
+    <string name="error_deleting_image">Error uploading image</string>
 </resources>

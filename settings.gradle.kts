@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Firebase"
+rootProject.name = "Quizec"
 include(":app")
