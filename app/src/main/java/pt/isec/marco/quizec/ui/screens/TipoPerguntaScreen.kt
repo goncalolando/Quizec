@@ -114,7 +114,7 @@ fun TipoPerguntaCard(
             ShowAnswer.StringAnswer(result.toString())
         }
         "P08" -> {
-            val respostaIndex = pergunta.respostaCerta.getOrNull(0)?.toIntOrNull()
+            val respostaIndex = pergunta.respostas.getOrNull(0)?.toIntOrNull()
             ShowAnswer.IntAnswer(respostaIndex)
         }
 
@@ -700,7 +700,7 @@ fun PerguntaPalavras(
                 idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
-                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
+                respostas = listOf("2"),
                 respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
                 tipo = "P07"
             ),
@@ -709,7 +709,7 @@ fun PerguntaPalavras(
                 idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                 titulo = "Selecione os continentes",
                 imagem = "imagem_pergunta3",
-                respostas = listOf("Ásia", "Europa", "Oceania", "Antártica", "Atlântico","MAreica"),
+                respostas = listOf("2"),
                 respostaCerta = listOf("Ásia", "Europa", "Oceania", "Antártica"),
                 tipo = "P08"
             )

@@ -7,7 +7,7 @@ data class Pergunta(
     var idUtilizador: String,
     val titulo: String,
     var imagem: String,
-    val respostas: List<String>,
+    var respostas: List<String>,
     val respostaCerta: List<String>,
     val tipo: String
 ){

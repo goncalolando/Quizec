@@ -6,7 +6,12 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +20,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -24,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.internal.enableLiveLiterals
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -239,19 +247,30 @@ fun T06_PerguntaEspacos(
 }
 @Composable
 fun T07_PerguntasAssociacao(
-
+    selected: Int,
+    nomes: List<String>,
+    picture: MutableState<String?>,
+    isNomeInvalidList: List<Boolean>,
+    isPictureInvalid: Boolean,
+    onNomeChange: (Int, String) -> Unit,
+    onCountChange: (Int) -> Unit
 ){
+    val butoesLista = (2..6).toList()
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier.fillMaxWidth()
-
+            .verticalScroll(scrollState)
     ) {
-//        T07_Opcoes(
-//            pergunta.respostaCerta.size,
-//            pergunta.respostaCerta,
-//            pergunta.imagem,
-//            isNomeInvalidList = List(pergunta.respostaCerta.size) { false },
-//            onNomeChange = { _, _ -> }
-//        )
+        BotoesLista(butoesLista, selected, onCountChange)
+        Text("Solução:")
+        T07_Opcoes(
+            selected,
+            picture,
+            nomes,
+            isPictureInvalid,
+            isNomeInvalidList,
+            onNomeChange,
+        )
     }
 }
 @Composable
@@ -545,26 +564,49 @@ fun T06_Opcoes(
 @Composable
 fun T07_Opcoes(
     countButton: Int,
-    nomes: List<String>,
     picture: MutableState<String?>,
+    nomes: List<String>,
+    invalidPicture: Boolean,
     isNomeInvalidList: List<Boolean>,
     onNomeChange: (Int, String) -> Unit
 ) {
+    val context = LocalContext.current
+    val imagePath: String by lazy { FileUtils.getTempFilename(context) }
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .background(Color.LightGray)
+            .border(
+                width = 2.dp,
+                color = if (invalidPicture) Color.Red else Color.Black,
+                shape = RectangleShape
+            )
+    ) {
+        AdicionaImagens(picture, context, imagePath)
+
+        if (invalidPicture) {
+            Text(
+                text = "Adicona uma imagem",
+                color = Color.Red,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(8.dp)
+            )
+        }
+    }
     for (i in 0 until countButton) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
+
+
         ) {
-            MeteImagem(
-                picture
-            )
             OutlinedTextField(
-                value = nomes.getOrElse(i + countButton) { "" },
-                onValueChange = { newText -> onNomeChange(i + countButton, newText) },
-                label = { Text("${('A' + i)}. ") },
-                isError = isNomeInvalidList.getOrElse(i + countButton) { false },
-                modifier = Modifier
-                    .weight(1f)
+                value = nomes.getOrElse(i ) { "" },
+                onValueChange = { newText -> onNomeChange(i , newText) },
+                label = { Text("${(i + 1)}. ") },
+                isError = isNomeInvalidList.getOrElse(i ) { false },
             )
         }
     }
@@ -607,6 +649,10 @@ fun CriarPerguntaScreen(
     // P06 ----------
     var frase by remember { mutableStateOf("") }
     var isFraseInvalid by remember { mutableStateOf(false) }
+    // P07 ------------
+    var pictureInvalid by remember { mutableStateOf(false) }
+    val picture07 = remember { mutableStateOf<String?>(null) }
+    var imageUrl07 by remember { mutableStateOf<String?>(null) }
     // P08 ---------
     var palavras08 = remember { mutableStateListOf("") }
     var isPalavras08Invalid = remember { mutableStateListOf(false) }
@@ -761,6 +807,20 @@ fun CriarPerguntaScreen(
             isNomeInvalid = true
             isValid = false
         }
+        for (i in 0 until nomes.size) {
+            if (nomes[i].isEmpty()) {
+                isNomeInvalidList[i] = true
+                isValid = false
+            } else {
+                isNomeInvalidList[i] = false
+            }
+        }
+        if (picture07.value == null) {
+            pictureInvalid = true
+            isValid = false
+        } else {
+            pictureInvalid = false
+        }
         return isValid
     }
 
@@ -894,7 +954,18 @@ fun CriarPerguntaScreen(
             }
 
             6 -> {
-                T07_PerguntasAssociacao()
+                T07_PerguntasAssociacao(
+                    selected = countButton,
+                    picture = picture07,
+                    nomes = nomes,
+                    isPictureInvalid = pictureInvalid,
+                    isNomeInvalidList = isNomeInvalidList,
+                    onNomeChange = { index, novoValor ->
+                        nomes[index] = novoValor
+                        isNomeInvalidList[index] = false
+                    },
+                    onCountChange = { novoValor -> countButton = novoValor }
+                )
             }
 
             7 -> {
@@ -1034,7 +1105,7 @@ fun CriarPerguntaScreen(
                             idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
                             titulo = nome,
                             imagem = picture.value ?: "",
-                            respostas = listOf(frase),
+                            respostas = listOf(picture07.value ?: "",),
                             respostaCerta = nomes,
                             tipo = "P07"
                         )
@@ -1077,13 +1148,37 @@ fun CriarPerguntaScreen(
                             }
                         )
                     } else {
+                        if(picture07.value != null){
+                            val fileUri: Uri = Uri.fromFile(picture07.value?.let { File(it) })
+                            AMovServer.asyncUploadImage(
+                                inputStream = context.contentResolver.openInputStream(fileUri)!!,
+                                extension = "jpg",
+                                onResult = { result ->
+                                    Log.d("AMovServer", "Result: $result")
+                                    if (result != null) {
+                                        imageUrl07 = result
+                                        error = null
+                                        val novaLista = pergunta?.respostas?.toMutableList()
+                                        novaLista?.set(0, imageUrl07 ?: "")
+                                        pergunta?.respostas = novaLista?.toList()!!
+                                    } else {
+                                        error = context.getString(R.string.error_uploading_image)
+                                        imageUrl07 = null
+                                    }
+                                    pergunta?.let {
+                                        viewModel.addPerguntaToFirestore(
+                                            it
+                                        )
+                                    }
+                                }
+                            )
+                        }
                         pergunta?.let {
                             viewModel.addPerguntaToFirestore(
                                 it
                             )
                         }
                     }
-
                     if (errorMessage == null) {
                         navController.navigate("criar-questionario") {
                             popUpTo("criar-questionario") { inclusive = true }
