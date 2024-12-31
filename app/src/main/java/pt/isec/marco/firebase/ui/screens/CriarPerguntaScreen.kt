@@ -1,6 +1,12 @@
 package pt.isec.marco.firebase.ui.screens
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,11 +32,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import coil3.Uri
 import com.google.firebase.auth.FirebaseAuth
 import pt.isec.marco.firebase.ui.viewmodels.FirebaseViewModel
 import pt.isec.marco.firebase.ui.viewmodels.Pergunta
+import pt.isec.marco.firebase.utils.FileUtils
+import java.io.File
 
 
 @Composable
@@ -849,6 +860,47 @@ fun CriarPerguntaScreen(
             )
         }
         var pergunta by remember { mutableStateOf<Pergunta?>(null) }
+        val context = LocalContext.current
+        val picture = remember { mutableStateOf<String?>(null) }
+        val pickImage = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia(),
+            onResult = { uri ->
+                picture.value = uri?.let { FileUtils.createFileFromUri(context,it) }
+            }
+        )
+        val imagePath : String by lazy { FileUtils.getTempFilename(context) }
+
+        val takePicture2 = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicture()
+        ) { success  ->
+            if (success) {
+                picture.value = FileUtils.copyFile(context,imagePath)
+            }
+        }
+
+
+        Button(
+            onClick = {pickImage.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly ) ) },
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        ) {
+            Text("Select picture")
+        }
+        Button(
+            onClick = {
+                takePicture2.launch(
+                    FileProvider.getUriForFile(
+                        context,
+                        "pt.isec.marco.firebase.android.fileprovider",
+                        File(imagePath)
+                    )
+                )
+            },
+            modifier = Modifier.weight(1f),
+        ) {
+            Text("Take picture")
+        }
         Button(
             onClick = {
                 when(tipoPerguntaSelecionada){
