@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.criador
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,6 +57,16 @@ fun CriadorMenuScreen(
             }}
         ) {
             Text("Criar questionario")
+        }
+        Button(
+            onClick = {
+                navController.navigate("partilhar-questionario") {
+                    popUpTo("partilhar-questionario") {
+                        inclusive = true
+                    }
+                }}
+        ) {
+            Text("Partilhar questionario")
         }
     }
 }
