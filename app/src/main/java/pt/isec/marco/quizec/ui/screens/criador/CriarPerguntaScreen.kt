@@ -1018,7 +1018,6 @@ fun CriarPerguntaScreen(
                             tipo = "P01"
                         )
                     }
-
                     1 -> {
                         isEntradaValida = validarP02()
                         pergunta = Pergunta(
@@ -1032,7 +1031,6 @@ fun CriarPerguntaScreen(
                             tipo = "P02"
                         )
                     }
-
                     2 -> {
                         val respostasCertas = List(isChecked03.size) { "" }.toMutableList()
 
@@ -1053,7 +1051,6 @@ fun CriarPerguntaScreen(
                             tipo = "P03"
                         )
                     }
-
                     3 -> {
                         val primeiraMetade = nomes04.take(nomes04.size / 2).shuffled()
                         val segundaMetade = nomes04.drop(nomes04.size / 2).shuffled()

@@ -132,7 +132,7 @@ fun SelecionarPerguntasScreen(
                                 }
                                 TipoPerguntaCard(
                                     pergunta = pergunta,
-                                    showComplete = showComplete,
+                                    showComplete = showComplete
                                 )
                             }
                         }

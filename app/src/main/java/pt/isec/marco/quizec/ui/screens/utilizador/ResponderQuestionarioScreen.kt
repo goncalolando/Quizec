@@ -48,10 +48,12 @@ fun ResponderQuestionarioScreen(
                 label = { Text("Introduz codigo questionario") },
                 placeholder = { Text("Escreve aqui...") }
             )
+            Text(errorMessage ?: "")
         }
         Button(
             onClick = {
                 errorMessage = null
+                // TODO verificar se o codigo é valido
                 FStorageUtil.getPartilhaById(userInput) { result, error ->
                     if (error != null) {
                         errorMessage = "Erro ao obter partilha: ${error.message}"
@@ -59,6 +61,11 @@ fun ResponderQuestionarioScreen(
                         partilha = result
                     } else {
                         errorMessage = "Nenhuma partilha encontrada com este código."
+                    }
+                }
+                navController.navigate("input-questionario"){
+                    popUpTo("input-questionario") {
+                        inclusive = true
                     }
                 }
             }

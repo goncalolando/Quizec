@@ -223,7 +223,7 @@ class FStorageUtil {
                     "id" to partilha.id,
                     "idQuestionario" to partilha.idQuestionario,
                     "tempoEspera" to partilha.tempoEspera,
-                    "duracao" to partilha.duracao,
+                    "duracao" to partilha.duracao
                 )
 
                 db.collection("Partilhas")

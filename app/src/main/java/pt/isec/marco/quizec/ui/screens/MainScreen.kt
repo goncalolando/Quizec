@@ -41,6 +41,7 @@ import pt.isec.marco.quizec.ui.screens.criador.HistoricoQuestionarioScreen
 import pt.isec.marco.quizec.ui.screens.criador.SelecionarPerguntasScreen
 import pt.isec.marco.quizec.ui.screens.criador.TipoPerguntaScreen
 import pt.isec.marco.quizec.ui.screens.criador.VerQuestionarioScreen
+import pt.isec.marco.quizec.ui.screens.utilizador.InputQuestionarioScreen
 import pt.isec.marco.quizec.ui.screens.utilizador.ResponderQuestionarioScreen
 import pt.isec.marco.quizec.ui.screens.utilizador.UtilizadorMenuScreen
 import pt.isec.marco.quizec.ui.viewmodels.FirebaseViewModel
@@ -60,6 +61,7 @@ fun MainScreen(
     var showComplete by remember { mutableStateOf(false) }
     var showAnswer by remember { mutableStateOf(false) }
     var codigoPartilha by remember { mutableStateOf("") }
+
 
 
     Scaffold(
@@ -252,11 +254,22 @@ fun MainScreen(
                         viewModel = viewModel,
                         navController = navController,
                         codigoPartilha = codigoPartilha
-
-
                     )
                 }
             }
+            composable(route = "input-questionario") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    InputQuestionarioScreen(
+                        viewModel = viewModel,
+                        navController = navController
+                    )
+                }
+            }
+
             composable(route = "seleciona-perguntas") {
                 Box(
                     modifier = Modifier
