@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "pt.isec.marco.firebase"
+    namespace = "pt.isec.marco.quizec"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "pt.isec.marco.firebase"
+        applicationId = "pt.isec.marco.quizec"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
