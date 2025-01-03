@@ -1,5 +1,6 @@
 package pt.isec.marco.quizec.ui.screens
 
+import pt.isec.marco.quizec.ui.screens.criador.PartilharQuestionarioScreen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -28,12 +29,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import pt.isec.marco.quizec.ui.screens.criador.CriadorMenuScreen
+import pt.isec.marco.quizec.ui.screens.criador.CriarPerguntaScreen
+import pt.isec.marco.quizec.ui.screens.criador.CriarQuestionarioScreen
+import pt.isec.marco.quizec.ui.screens.criador.HistoricoQuestionarioScreen
+import pt.isec.marco.quizec.ui.screens.criador.SelecionarPerguntasScreen
+import pt.isec.marco.quizec.ui.screens.criador.TipoPerguntaScreen
+import pt.isec.marco.quizec.ui.screens.criador.VerQuestionarioScreen
+import pt.isec.marco.quizec.ui.screens.utilizador.ResponderQuestionarioScreen
+import pt.isec.marco.quizec.ui.screens.utilizador.UtilizadorMenuScreen
 import pt.isec.marco.quizec.ui.viewmodels.FirebaseViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,6 +59,8 @@ fun MainScreen(
     var tipoPerguntaSelecionada by remember { mutableStateOf(-1) }
     var showComplete by remember { mutableStateOf(false) }
     var showAnswer by remember { mutableStateOf(false) }
+    var codigoPartilha by remember { mutableStateOf("") }
+
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -239,7 +250,10 @@ fun MainScreen(
                 ){
                     ResponderQuestionarioScreen(
                         viewModel = viewModel,
-                        navController = navController
+                        navController = navController,
+                        codigoPartilha = codigoPartilha
+
+
                     )
                 }
             }
@@ -280,6 +294,20 @@ fun MainScreen(
                         navController = navController,
                         showComplete = showComplete
                     )
+                }
+            }
+            composable(route = "partilhar-questionario") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(108, 147, 201, 255))
+                ){
+                    PartilharQuestionarioScreen(
+                        viewModel = viewModel,
+                        codigoQuestionario = viewModel.codigoQuestionario,
+                        tempoEspera = viewModel.tempoEspera,
+                        duracao = viewModel.duracao,
+                        )
                 }
             }
         }

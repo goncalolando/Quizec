@@ -15,6 +15,12 @@ open class FirebaseViewModel : ViewModel() {
     private val _user = mutableStateOf(FAuthUtil.currentUser?.toUser())
     val perguntas = mutableStateOf(listOf<String>())
     val questionarios = mutableStateOf(listOf<String>())
+    val partilha = mutableStateOf(listOf<Partilha>())
+
+    val duracao = mutableStateOf(0L)
+    val tempoEspera = mutableStateOf(0L)
+
+    val codigoQuestionario = mutableStateOf("")
 
     open val user : State<Utilizador?>
         get() = _user
@@ -55,15 +61,6 @@ open class FirebaseViewModel : ViewModel() {
         _error.value = null
     }
 
-    private val _nrgames = mutableLongStateOf(0L)
-    open val nrgames : State<Long>
-        get() = _nrgames
-
-    private val _topscore = mutableLongStateOf(0L)
-    open val topscore : State<Long>
-        get() = _topscore
-
-
     fun addPerguntaToFirestore(pergunta: Pergunta) {
         viewModelScope.launch {
             FStorageUtil.addPerguntaToFirestore({ exception ->
@@ -72,7 +69,7 @@ open class FirebaseViewModel : ViewModel() {
         }
     }
 
-    fun addQuestioanrioToFirestore(questionario: Questionario) {
+    fun addQuestionarioToFirestore(questionario: Questionario) {
         viewModelScope.launch {
             FStorageUtil.addQuestionarioToFirestore({ exception ->
                 _error.value = exception?.message
@@ -80,6 +77,13 @@ open class FirebaseViewModel : ViewModel() {
         }
     }
 
+    fun addPartilhaToFirestore(partilha: Partilha) {
+        viewModelScope.launch {
+            FStorageUtil.addPartilhaToFirestore({ exception ->
+                _error.value = exception?.message
+            }, partilha, this@FirebaseViewModel)
+        }
+    }
     fun updateDataInFirestore() {
         viewModelScope.launch {
             //FirebaseUtils.updateDataInFirestore()
@@ -138,15 +142,6 @@ open class FirebaseViewModel : ViewModel() {
             }
         } else {
             Log.e("Firestore", "Utilizador não autenticado")
-        }
-    }
-
-    fun startObserver() {
-        viewModelScope.launch {
-            FStorageUtil.startObserver { g, t ->
-                _nrgames.longValue = g
-                _topscore.longValue = t
-            }
         }
     }
 

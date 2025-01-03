@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.criador
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -443,7 +443,7 @@ fun PerguntaOrdenacao(
     showComplete: Boolean = false,
     showAnswer: ShowAnswer?,
 
-){
+    ){
     val selectedAnswerList = when (showAnswer) {
         is ShowAnswer.ListAnswer -> showAnswer.value
         else ->  List(pergunta.respostas.size) { "" }
