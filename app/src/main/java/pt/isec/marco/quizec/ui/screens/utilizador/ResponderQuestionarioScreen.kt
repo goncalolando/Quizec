@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.utilizador
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,13 +17,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import pt.isec.marco.quizec.ui.viewmodels.FirebaseViewModel
+import pt.isec.marco.quizec.ui.viewmodels.Partilha
+import pt.isec.marco.quizec.utils.FStorageUtil
+
 
 @Composable
 fun ResponderQuestionarioScreen(
     viewModel: FirebaseViewModel,
     navController: NavHostController,
-
+    codigoPartilha: String,
     ) {
+    var partilha by remember { mutableStateOf<Partilha?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var userInput by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -31,7 +38,6 @@ fun ResponderQuestionarioScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        var userInput by remember { mutableStateOf("") }
 
         Column {
             TextField(
@@ -42,14 +48,26 @@ fun ResponderQuestionarioScreen(
                 label = { Text("Introduz codigo questionario") },
                 placeholder = { Text("Escreve aqui...") }
             )
+            Text(errorMessage ?: "")
         }
         Button(
-            onClick = { navController.navigate("responder-questionario")
-            {
-                popUpTo("responder-questionario") {
-                    inclusive = true
+            onClick = {
+                errorMessage = null
+                // TODO verificar se o codigo é valido
+                FStorageUtil.getPartilhaById(userInput) { result, error ->
+                    if (error != null) {
+                        errorMessage = "Erro ao obter partilha: ${error.message}"
+                    } else if (result != null) {
+                        partilha = result
+                    } else {
+                        errorMessage = "Nenhuma partilha encontrada com este código."
+                    }
                 }
-            }
+                navController.navigate("input-questionario"){
+                    popUpTo("input-questionario") {
+                        inclusive = true
+                    }
+                }
             }
         ) {
             Text("Entrar")

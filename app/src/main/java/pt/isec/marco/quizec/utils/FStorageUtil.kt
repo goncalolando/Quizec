@@ -9,6 +9,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import pt.isec.marco.quizec.ui.viewmodels.FirebaseViewModel
+import pt.isec.marco.quizec.ui.viewmodels.Partilha
 import pt.isec.marco.quizec.ui.viewmodels.Pergunta
 import pt.isec.marco.quizec.ui.viewmodels.Questionario
 import java.io.IOException
@@ -100,15 +101,35 @@ class FStorageUtil {
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
                         val questionario = Questionario.fromFirestore(document)
-                        onResult(questionario, null) // Return the Pergunta
+                        onResult(questionario, null)
                     } else {
-                        onResult(null, Throwable("Pergunta not found"))
+                        onResult(null, Throwable("Questionario not found"))
                     }
                 }
                 .addOnFailureListener { exception ->
                     onResult(null, exception)
                 }
         }
+
+        fun getPartilhaById(id: String, onResult: (Partilha?, Throwable?) -> Unit) {
+            val db = Firebase.firestore
+
+            val docRef = db.collection("Partilhas").document("partilha_$id")
+
+            docRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val partilha = Partilha.fromFirestore(document)
+                        onResult(partilha, null)
+                    } else {
+                        onResult(null, Throwable("Partilha not found"))
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    onResult(null, exception)
+                }
+        }
+
         fun startQuestionariosObserver(userId: String, onNewValues: (List<Questionario>?, Throwable?) -> Unit) {
             stopObserver()
             val db = Firebase.firestore
@@ -192,7 +213,32 @@ class FStorageUtil {
                     }
             }
         }
+        fun addPartilhaToFirestore(onResult: (Throwable?) -> Unit, partilha: Partilha, viewModel: FirebaseViewModel) {
+            val db = Firebase.firestore
 
+            geraUnico { uniqueId ->
+                partilha.id = uniqueId
+
+                val partilhaHash = hashMapOf(
+                    "id" to partilha.id,
+                    "idQuestionario" to partilha.idQuestionario,
+                    "tempoEspera" to partilha.tempoEspera,
+                    "duracao" to partilha.duracao
+                )
+
+                db.collection("Partilhas")
+                    .document("partilha_${partilha.id}")
+                    .set(partilhaHash)
+                    .addOnCompleteListener { result ->
+                        Log.i("Firestore", "addPartilhaToFirestore: Success? ${result.isSuccessful}")
+                        if (result.isSuccessful) {
+                            onResult(null)
+                        } else {
+                            onResult(result.exception)
+                        }
+                    }
+            }
+        }
         fun updateDataInFirestore(onResult: (Throwable?) -> Unit) {
             val db = Firebase.firestore
             val v = db.collection("Scores").document("Level1")

@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.criador
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

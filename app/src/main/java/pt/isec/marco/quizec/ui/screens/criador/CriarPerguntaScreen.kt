@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.criador
 
 import android.content.Context
 import android.net.Uri
@@ -8,8 +8,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.internal.enableLiveLiterals
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -573,24 +571,27 @@ fun T07_Opcoes(
     val context = LocalContext.current
     val imagePath: String by lazy { FileUtils.getTempFilename(context) }
 
-    Box(
+    Column(
         Modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
+            .background(Color(108, 147, 201, 255))
             .border(
                 width = 2.dp,
                 color = if (invalidPicture) Color.Red else Color.Black,
                 shape = RectangleShape
+                )
+            .padding(8.dp)
+            .clip(
+                RoundedCornerShape(8.dp)
             )
     ) {
         AdicionaImagens(picture, context, imagePath)
 
         if (invalidPicture) {
             Text(
-                text = "Adicona uma imagem",
+                text = "Adiciona uma imagem",
                 color = Color.Red,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .padding(8.dp)
             )
         }
@@ -599,8 +600,6 @@ fun T07_Opcoes(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-
-
         ) {
             OutlinedTextField(
                 value = nomes.getOrElse(i ) { "" },
@@ -1019,7 +1018,6 @@ fun CriarPerguntaScreen(
                             tipo = "P01"
                         )
                     }
-
                     1 -> {
                         isEntradaValida = validarP02()
                         pergunta = Pergunta(
@@ -1033,7 +1031,6 @@ fun CriarPerguntaScreen(
                             tipo = "P02"
                         )
                     }
-
                     2 -> {
                         val respostasCertas = List(isChecked03.size) { "" }.toMutableList()
 
@@ -1054,7 +1051,6 @@ fun CriarPerguntaScreen(
                             tipo = "P03"
                         )
                     }
-
                     3 -> {
                         val primeiraMetade = nomes04.take(nomes04.size / 2).shuffled()
                         val segundaMetade = nomes04.drop(nomes04.size / 2).shuffled()

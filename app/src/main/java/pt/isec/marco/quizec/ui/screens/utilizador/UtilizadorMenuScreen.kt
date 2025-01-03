@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.utilizador
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -59,5 +59,6 @@ fun UtilizadorMenuScreen(
         ) {
             Text("Responder questionario")
         }
+
     }
 }

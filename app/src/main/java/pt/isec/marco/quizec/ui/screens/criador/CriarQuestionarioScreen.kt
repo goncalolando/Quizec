@@ -1,4 +1,4 @@
-package pt.isec.marco.quizec.ui.screens
+package pt.isec.marco.quizec.ui.screens.criador
 
 import android.net.Uri
 import android.util.Log
@@ -82,8 +82,9 @@ fun CriarQuestionarioScreen(
                 fontWeight = FontWeight.Bold,
                 color = Color.DarkGray
             )
+            Spacer(Modifier.height(32.dp))
             AdicionaImagens(picture, context, imagePath)
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(16.dp))
             TextField(
                 value = descricao,
                 onValueChange = { newText ->
@@ -185,7 +186,7 @@ fun CriarQuestionarioScreen(
                                 error = context.getString(R.string.error_uploading_image)
                                 imageUrl = null
                             }
-                            viewModel.addQuestioanrioToFirestore(
+                            viewModel.addQuestionarioToFirestore(
                                 Questionario(
                                     id = "",
                                     idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
@@ -197,7 +198,7 @@ fun CriarQuestionarioScreen(
                         }
                     )
                 }else{
-                    viewModel.addQuestioanrioToFirestore(
+                    viewModel.addQuestionarioToFirestore(
                         Questionario(
                             id = "",
                             idUtilizador = FirebaseAuth.getInstance().currentUser?.uid ?: "",
