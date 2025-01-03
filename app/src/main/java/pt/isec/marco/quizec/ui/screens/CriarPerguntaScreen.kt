@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -573,24 +574,27 @@ fun T07_Opcoes(
     val context = LocalContext.current
     val imagePath: String by lazy { FileUtils.getTempFilename(context) }
 
-    Box(
+    Column(
         Modifier
             .fillMaxWidth()
-            .background(Color.LightGray)
+            .background(Color(108, 147, 201, 255))
             .border(
                 width = 2.dp,
                 color = if (invalidPicture) Color.Red else Color.Black,
                 shape = RectangleShape
+                )
+            .padding(8.dp)
+            .clip(
+                RoundedCornerShape(8.dp)
             )
     ) {
         AdicionaImagens(picture, context, imagePath)
 
         if (invalidPicture) {
             Text(
-                text = "Adicona uma imagem",
+                text = "Adiciona uma imagem",
                 color = Color.Red,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .padding(8.dp)
             )
         }
@@ -599,8 +603,6 @@ fun T07_Opcoes(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-
-
         ) {
             OutlinedTextField(
                 value = nomes.getOrElse(i ) { "" },

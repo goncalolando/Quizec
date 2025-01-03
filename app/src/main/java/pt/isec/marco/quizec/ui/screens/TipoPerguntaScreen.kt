@@ -113,6 +113,14 @@ fun TipoPerguntaCard(
             }
             ShowAnswer.StringAnswer(result.toString())
         }
+        "P07" -> {
+            val respostaIndex = List(pergunta.respostas.size) {-1}.toMutableList()
+            for(i in 0 until pergunta.respostaCerta.size) {
+                val index = pergunta.respostaCerta.indexOf(pergunta.respostas[i])
+                respostaIndex[index] = i + 1
+            }
+            ShowAnswer.ListAnswer(respostaIndex)
+        }
         "P08" -> {
             val respostaIndex = pergunta.respostas.getOrNull(0)?.toIntOrNull()
             ShowAnswer.IntAnswer(respostaIndex)
@@ -129,6 +137,8 @@ fun TipoPerguntaCard(
             containerColor = Color(255,224,192)
         )
     ) {
+        val picture = remember { mutableStateOf<String?>(pergunta.imagem) }
+        MeteImagem(picture)
         when(pergunta.tipo){
             "P01" -> PerguntaVF(pergunta, showComplete,answer)
             "P02" -> PerguntaEM(pergunta, showComplete,answer,false)
@@ -591,9 +601,17 @@ fun PerguntaAssociacao(
     showComplete: Boolean = false,
     showAnswer: ShowAnswer?
 ){
+    val selectedAnswerList = when (showAnswer) {
+        is ShowAnswer.ListAnswer -> showAnswer.value
+        else ->  List(pergunta.respostas.size) { "" }
+    }
     Text(stringResource(R.string.P07_name))
     Spacer(modifier = Modifier.height(16.dp))
     Text("Pergunta: ${pergunta.titulo}")
+    val picture = remember { mutableStateOf<String?>(selectedAnswerList[0].toString()) }
+    MeteImagem(picture)
+    PerguntaEM(pergunta, showComplete, showAnswer, false)
+
 
 }
 
